@@ -23,3 +23,5 @@ Dependency rules:
 - Permission checks happen in both rendered actions and mutation boundaries.
 - `@repo/ui` is presentation-only; feature code stays in an app or feature package.
 - `@repo/http`, `@repo/auth`, and `@repo/logger` are adapter boundaries, not provider implementations.
+- `apps/admin/app/api/health/route.ts` is a provider-independent readiness endpoint; infrastructure can use it before adding deployment-specific checks.
+- Keep mock data and demo auth behind replaceable adapters. Production integrations should validate environment variables, enforce permissions at mutation boundaries, and preserve the shared contracts.

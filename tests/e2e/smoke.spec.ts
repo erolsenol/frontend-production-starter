@@ -12,6 +12,12 @@ test("admin users flow supports filtering", async ({ page }) => {
   await expect(page.getByText("Marcus Kim")).not.toBeVisible();
 });
 
+test("admin health endpoint reports readiness", async ({ request }) => {
+  const response = await request.get("/api/health");
+  expect(response.ok()).toBeTruthy();
+  await expect(response.json()).resolves.toMatchObject({ status: "ok", service: "admin" });
+});
+
 test("docs app exposes onboarding guidance", async ({ page }) => {
   await page.goto("http://localhost:3102");
   await expect(page.getByRole("heading", { name: /Build your next app/i })).toBeVisible();
