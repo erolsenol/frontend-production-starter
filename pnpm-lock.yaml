@@ -216,11 +216,87 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.4)
 
+  apps/docs:
+    dependencies:
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      next:
+        specifier: 16.3.5
+        version: 16.3.5(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.4
+      '@types/react':
+        specifier: ^19.0.2
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.3.0(@types/react@19.3.0)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.4)
+
+  examples/minimal-next-app:
+    dependencies:
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@repo/layout':
+        specifier: workspace:*
+        version: link:../../packages/layout
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      next:
+        specifier: 16.3.5
+        version: 16.3.5(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.4
+      '@types/react':
+        specifier: ^19.0.2
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.3.0(@types/react@19.3.0)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.4)
+
   packages/api-client:
     dependencies:
       '@repo/contracts':
         specifier: workspace:*
         version: link:../contracts
+
+  packages/auth: {}
+
+  packages/config:
+    dependencies:
+      '@repo/validators':
+        specifier: workspace:*
+        version: link:../validators
 
   packages/contracts: {}
 
@@ -228,7 +304,46 @@ importers:
 
   packages/eslint-config: {}
 
+  packages/feature-flags: {}
+
+  packages/forms:
+    dependencies:
+      '@repo/validation':
+        specifier: workspace:*
+        version: link:../validation
+
+  packages/http:
+    dependencies:
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
+
+  packages/i18n: {}
+
+  packages/layout:
+    dependencies:
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.2
+        version: 19.3.0
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+
+  packages/logger: {}
+
+  packages/notifications: {}
+
   packages/permissions: {}
+
+  packages/tables: {}
+
+  packages/testing: {}
+
+  packages/types: {}
 
   packages/typescript-config: {}
 
@@ -260,8 +375,17 @@ importers:
         specifier: ^19.0.2
         version: 19.3.0
 
+  packages/validation:
+    dependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+
   packages/validators:
     dependencies:
+      '@repo/validation':
+        specifier: workspace:*
+        version: link:../validation
       zod:
         specifier: ^3.25.76
         version: 3.25.76

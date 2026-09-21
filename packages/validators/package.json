@@ -1,1 +1,1 @@
-{"name":"@repo/validators","version":"0.1.0","private":true,"main":"src/index.ts","types":"src/index.ts","dependencies":{"zod":"^3.25.76"}}
+{"name":"@repo/validators","version":"0.1.0","private":true,"main":"src/index.ts","types":"src/index.ts","dependencies":{"@repo/validation":"workspace:*","zod":"^3.25.76"}}

@@ -6,6 +6,12 @@
 
 A public, production-minded admin starter for building typed, accessible, and maintainable web products with Next.js and TypeScript.
 
+## Choose your path
+
+- **Simple app:** start with `examples/minimal-next-app`.
+- **Admin product:** explore `apps/admin`.
+- **Package development:** read `docs/architecture.md` and the package READMEs.
+
 ## What is included
 
 - Next.js App Router with Server Components by default
@@ -15,6 +21,8 @@ A public, production-minded admin starter for building typed, accessible, and ma
 - Shared UI package with accessible primitives
 - Typed contracts, validators, API client and permissions packages
 - Mock-first dashboard, users, roles, audit logs and settings flows
+- Minimal Next.js example and local documentation app
+- Optional auth, permissions, i18n, feature flags, logging and testing packages
 - Responsive dark-sidebar admin shell
 - CI-ready lint, typecheck, test and build commands
 
@@ -26,16 +34,22 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) for the admin app. The minimal example runs on `3001`; docs run on `3002`.
 
 ## Workspace
 
 ```text
 apps/admin              Next.js admin application
+apps/docs               Local package and usage documentation
+examples/minimal-next-app  Five-minute onboarding example
 packages/ui             Shared UI primitives
+packages/layout         Page header and layout primitives
+packages/types          Framework-agnostic shared types
 packages/contracts      Framework-agnostic domain contracts
-packages/validators     Runtime validation schemas
-packages/api-client     Typed API and mock adapter boundary
+packages/http           Typed HTTP client and error boundary
+packages/validation     Runtime validation schemas
+packages/forms          Form submission state contracts
+packages/tables         Data table contracts
 packages/permissions    RBAC permission model
 packages/design-tokens  Shared visual tokens
 ```
