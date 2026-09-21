@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@repo/ui";
 import { Icon, type IconName } from "./icons";
 
 const navigation: Array<{ label: string; href: string; icon: IconName }> = [

@@ -2,7 +2,7 @@
   "name": "admin",
   "private": true,
   "version": "0.1.0",
-  "scripts": {"dev":"next dev","build":"next build","start":"next start","lint":"tsc --noEmit","typecheck":"tsc --noEmit","test":"vitest run"},
+  "scripts": {"dev":"next dev","build":"next build","start":"next start","lint":"eslint . --max-warnings 0","typecheck":"tsc --noEmit","test":"vitest run"},
   "dependencies": {
     "@repo/api-client":"workspace:*",
     "@repo/contracts":"workspace:*",

@@ -3,6 +3,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue?logo=typescript)
 ![Turborepo](https://img.shields.io/badge/monorepo-Turborepo-EF4444?logo=turborepo)
+[![CI](https://github.com/erolsenol/frontend-production-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/erolsenol/frontend-production-starter/actions/workflows/ci.yml)
 
 A public, production-minded admin starter for building typed, accessible, and maintainable web products with Next.js and TypeScript.
 
@@ -24,7 +25,8 @@ A public, production-minded admin starter for building typed, accessible, and ma
 - Minimal Next.js example and local documentation app
 - Optional auth, permissions, i18n, feature flags, logging and testing packages
 - Responsive dark-sidebar admin shell
-- CI-ready lint, typecheck, test and build commands
+- CI-ready ESLint, typecheck, unit test, E2E smoke test, security audit and build commands
+- Safe default security headers and a replaceable HTTP client with timeout support
 
 ## Quick start
 
@@ -63,7 +65,17 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm check:full
+pnpm e2e
+pnpm audit
 ```
+
+Install the Playwright browser once before running E2E tests locally:
+
+```bash
+pnpm exec playwright install chromium
+```
+
+The starter is intentionally mock-first. Replace the demo auth adapter and local data with your provider/API/database adapters before using it with real users or sensitive data.
 
 ## Architecture
 
