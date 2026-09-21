@@ -1,0 +1,4 @@
+import { Card } from "@repo/ui";
+import { activities } from "../../lib/mock-data";
+
+export default function AuditLogsPage() { return <div className="page-stack"><div className="page-heading"><div><h1>Audit logs</h1><p>Review security and workspace events.</p></div><button className="text-button">Export logs ↗</button></div><Card className="list-card"><div className="filter-bar"><input className="filter-input" placeholder="Search events..." aria-label="Search events" /><select aria-label="Filter by event"><option>All events</option><option>Authentication</option><option>Access changes</option></select></div><div className="table-wrap"><table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Details</th><th>IP address</th></tr></thead><tbody>{activities.map((item) => <tr key={item.id}><td>{item.timestamp}</td><td>{item.actor}</td><td>{item.action}</td><td>{item.detail}</td><td>{item.ip}</td></tr>)}</tbody></table></div></Card></div>; }
