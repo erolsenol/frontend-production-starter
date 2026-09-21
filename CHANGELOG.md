@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+
+- Upgraded Turborepo to 2.11.2 and removed the pnpm lockfile workspace warning.
+- Added `@repo/data-access` with typed user repository contracts and an in-memory adapter.
+- Added static auth adapter and session expiry checks with tests.
+- Restored frozen-lockfile consistency and aligned root package metadata.
+
 ## 0.4.0
 
 - Added coverage thresholds for the shared HTTP client and admin filtering helper.

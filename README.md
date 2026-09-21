@@ -49,6 +49,7 @@ packages/layout         Page header and layout primitives
 packages/types          Framework-agnostic shared types
 packages/contracts      Framework-agnostic domain contracts
 packages/http           Typed HTTP client and error boundary
+packages/data-access    Typed repository contracts and in-memory adapter
 packages/validation     Runtime validation schemas
 packages/forms          Form submission state contracts
 packages/tables         Data table contracts
