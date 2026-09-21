@@ -5,4 +5,4 @@
 - [x] Optional auth, permissions, i18n, and feature flags
 - [x] Dashboard and CRUD examples
 - [x] Docs, generators, contributor workflow, and release hardening
-- [ ] Public GitHub release and profile README update
+- [x] Public GitHub release and profile README update
