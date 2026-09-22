@@ -2,8 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("admin users flow supports filtering", async ({ page }) => {
   await page.goto("/users");
-  await page.waitForTimeout(1000);
-  await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Users", exact: true })).toBeVisible();
 
   const search = page.getByRole("searchbox", { name: "Search users" });
   await search.click();

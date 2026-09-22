@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.15.2
+
+- Stabilized the Users browser smoke test by using an exact heading locator and Playwright auto-waiting.
+
 ## 0.15.1
 
 - Added a documentation map, getting-started, testing, operations, and production adapter guides.
