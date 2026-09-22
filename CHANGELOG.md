@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.0
+
+- Completed provider-neutral production composition for auth, user repositories, and role repositories.
+- Made demo memory adapters fail closed when production or `DEMO_MODE=false` is active.
+- Added real Roles edit/delete interactions while keeping system roles immutable.
+- Added liveness/readiness separation with a `503` production gate until real adapters are wired.
+- Added production adapter handoff documentation and boundary regression tests.
+
 ## 0.11.0
 
 - Added typed runtime configuration that rejects demo auth and in-memory data sources in production.

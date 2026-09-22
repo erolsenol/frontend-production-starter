@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createStaticAuthAdapter } from "@repo/auth";
-import { createAdminPermissionGuard, requireAdminPermission } from "./access";
+import { configureAdminAccess, createAdminPermissionGuard, requireAdminPermission } from "./access";
 
 describe("admin access boundary", () => {
   it("allows demo access outside production", async () => {
@@ -23,5 +23,15 @@ describe("admin access boundary", () => {
 
     await expect(guard("users.read")).resolves.toMatchObject({ permissions: ["users.read"] });
     await expect(guard("users.delete")).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("supports explicit provider composition when demo mode is disabled", async () => {
+    const previous = process.env.DEMO_MODE;
+    process.env.DEMO_MODE = "false";
+    configureAdminAccess({ auth: createStaticAuthAdapter({ userId: "user_2", email: "provider@example.com", name: "Provider", expiresAt: "2027-01-01T00:00:00.000Z" }), permissions: ["roles.manage"] });
+    await expect(requireAdminPermission("roles.manage")).resolves.toMatchObject({ permissions: ["roles.manage"] });
+    configureAdminAccess(null);
+    if (previous === undefined) delete process.env.DEMO_MODE;
+    else process.env.DEMO_MODE = previous;
   });
 });

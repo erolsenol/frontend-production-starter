@@ -88,6 +88,8 @@ The application uses a replaceable adapter boundary: the demo runs with local mo
 
 See [docs/architecture.md](./docs/architecture.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
 
+For connecting a real authentication provider and database, see [docs/production-adapters.md](./docs/production-adapters.md).
+
 ## License
 
 MIT. See [LICENSE](./LICENSE).

@@ -20,6 +20,11 @@ export const createAdminPermissionGuard = ({ auth, permissions }: AdminAccessDep
 };
 
 const demoPermissionGuard = createAdminPermissionGuard({ auth: createDemoAuthAdapter(), permissions: demoPermissions });
+let configuredPermissionGuard: ((permission: Permission) => Promise<AccessContext>) | null = null;
+
+export const configureAdminAccess = (dependencies: AdminAccessDependencies | null): void => {
+  configuredPermissionGuard = dependencies ? createAdminPermissionGuard(dependencies) : null;
+};
 
 export const requireAdminPermission = async (permission: Permission): Promise<AccessContext> => {
   let config;
@@ -29,8 +34,9 @@ export const requireAdminPermission = async (permission: Permission): Promise<Ac
     if (error instanceof InvalidProductionConfigError) throw new UnauthenticatedError();
     throw error;
   }
-  if (!config.demoMode || config.environment === "production") throw new UnauthenticatedError();
-  return demoPermissionGuard(permission);
+  if (config.demoMode && config.environment !== "production") return demoPermissionGuard(permission);
+  if (!configuredPermissionGuard) throw new UnauthenticatedError();
+  return configuredPermissionGuard(permission);
 };
 
 export const authErrorResponse = (error: unknown): NextResponse => {
