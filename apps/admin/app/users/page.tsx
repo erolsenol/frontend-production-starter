@@ -6,7 +6,8 @@ import type { SubmitState } from "@repo/forms";
 import type { Notification } from "@repo/notifications";
 import type { Paginated } from "@repo/types";
 import { Button, Card, ConfirmDialog, EmptyState } from "@repo/ui";
-import { inviteUserSchema, userPageSchema, userSummarySchema } from "@repo/validators";
+import { inviteUserSchema } from "@repo/validators";
+import { createUser, listUsers, removeUser, updateUserStatus as updateUserStatusRequest } from "../../features/users/user-api";
 
 const pageSize = 4;
 const roles = ["Administrator", "Developer", "Analyst", "Viewer"] as const;
@@ -19,15 +20,6 @@ interface InviteFormState {
 
 const initialInviteForm: InviteFormState = { name: "", email: "", role: "Developer" };
 const emptyPage: Paginated<UserSummary> = { items: [], pageInfo: { page: 1, pageSize, total: 0, totalPages: 1 } };
-
-const readErrorMessage = async (response: Response): Promise<string> => {
-  const payload: unknown = await response.json().catch(() => undefined);
-  if (typeof payload === "object" && payload !== null && "error" in payload) {
-    const error = payload.error;
-    if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string") return error.message;
-  }
-  return "Something went wrong. Please try again.";
-};
 
 export default function UsersPage() {
   const [userPage, setUserPage] = useState<Paginated<UserSummary>>(emptyPage);
@@ -46,14 +38,8 @@ export default function UsersPage() {
   const loadUsers = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
-    const params = new URLSearchParams({ query, status, page: String(page), pageSize: String(pageSize) });
     try {
-      const response = await fetch(`/api/users?${params.toString()}`, { signal, cache: "no-store" });
-      if (!response.ok) throw new Error(await readErrorMessage(response));
-      const payload: unknown = await response.json();
-      const result = userPageSchema.safeParse(payload);
-      if (!result.success) throw new Error("The server returned an invalid users response.");
-      setUserPage(result.data);
+      setUserPage(await listUsers({ query, status, page, pageSize }, signal));
     } catch (cause: unknown) {
       if (cause instanceof DOMException && cause.name === "AbortError") return;
       setError(cause instanceof Error ? cause.message : "Unable to load users.");
@@ -88,28 +74,23 @@ export default function UsersPage() {
       return;
     }
     setSubmitState({ status: "submitting" });
-    const response = await fetch("/api/users", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(result.data) });
-    if (!response.ok) {
-      setSubmitState({ status: "error", message: await readErrorMessage(response) });
-      return;
+    try {
+      const createdUser = await createUser(result.data);
+      setInviteOpen(false);
+      setSubmitState({ status: "success", message: "User invitation created." });
+      setNotification({ id: createdUser.id, tone: "success", title: "Invitation created", description: `${createdUser.email} can now join the workspace.` });
+      setPage(1);
+      await loadUsers();
+    } catch (cause: unknown) {
+      setSubmitState({ status: "error", message: cause instanceof Error ? cause.message : "Unable to invite user." });
     }
-    const created: unknown = await response.json();
-    const createdUser = userSummarySchema.safeParse(created);
-    if (!createdUser.success) {
-      setSubmitState({ status: "error", message: "The server returned an invalid user response." });
-      return;
-    }
-    setInviteOpen(false);
-    setSubmitState({ status: "success", message: "User invitation created." });
-    setNotification({ id: createdUser.data.id, tone: "success", title: "Invitation created", description: `${createdUser.data.email} can now join the workspace.` });
-    setPage(1);
-    await loadUsers();
   };
 
   const deleteUser = async (user: UserSummary) => {
-    const response = await fetch(`/api/users/${encodeURIComponent(user.id)}`, { method: "DELETE" });
-    if (!response.ok) {
-      setNotification({ id: user.id, tone: "error", title: "User was not removed", description: await readErrorMessage(response) });
+    try {
+      await removeUser(user.id);
+    } catch (cause: unknown) {
+      setNotification({ id: user.id, tone: "error", title: "User was not removed", description: cause instanceof Error ? cause.message : "Unable to remove user." });
       return;
     }
     setNotification({ id: user.id, tone: "info", title: "User removed", description: `${user.name} was removed from this demo workspace.` });
@@ -119,9 +100,10 @@ export default function UsersPage() {
   };
 
   const updateUserStatus = async (user: UserSummary, nextStatus: UserStatus) => {
-    const response = await fetch(`/api/users/${encodeURIComponent(user.id)}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ status: nextStatus }) });
-    if (!response.ok) {
-      setNotification({ id: user.id, tone: "error", title: "User was not updated", description: await readErrorMessage(response) });
+    try {
+      await updateUserStatusRequest(user.id, nextStatus);
+    } catch (cause: unknown) {
+      setNotification({ id: user.id, tone: "error", title: "User was not updated", description: cause instanceof Error ? cause.message : "Unable to update user." });
       return;
     }
     setUserPage((current) => ({ ...current, items: current.items.map((candidate) => candidate.id === user.id ? { ...candidate, status: nextStatus } : candidate) }));
