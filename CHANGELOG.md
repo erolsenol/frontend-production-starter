@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.0
+
+- Added a provider-ready admin permission guard factory for real authentication integrations.
+- Hardened readiness semantics with dynamic, non-cacheable health responses.
+- Fixed in-memory repository ID collisions after deleting middle records.
+- Extracted the invitation dialog and moved validation to a native FormData plus Zod boundary.
+- Added health, permission, repository identity, and invitation regression coverage.
+
 ## 0.9.0
 
 - Refactored the Users screen around a focused `UserTable` feature component and the shared accessible Dialog primitive.
