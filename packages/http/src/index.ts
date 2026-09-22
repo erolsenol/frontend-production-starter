@@ -29,8 +29,15 @@ const joinUrl = (baseUrl: string, path: string): string =>
 const withTimeout = (init: RequestInit | undefined, timeoutMs: number): RequestInit => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  controller.signal.addEventListener("abort", () => clearTimeout(timeout), { once: true });
-  return { ...init, signal: init?.signal ?? controller.signal };
+  const callerSignal = init?.signal;
+  const abortFromCaller = () => controller.abort(callerSignal?.reason);
+  if (callerSignal?.aborted) abortFromCaller();
+  else callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+  controller.signal.addEventListener("abort", () => {
+    clearTimeout(timeout);
+    callerSignal?.removeEventListener("abort", abortFromCaller);
+  }, { once: true });
+  return { ...init, signal: controller.signal };
 };
 
 export const createHttpClient = (baseUrl: string, options: HttpClientOptions = {}): HttpClient => {

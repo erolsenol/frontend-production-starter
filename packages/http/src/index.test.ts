@@ -16,4 +16,19 @@ describe("createHttpClient", () => {
 
     await expect(client.get("/missing")).rejects.toMatchObject({ code: "NOT_FOUND", status: 404 });
   });
+
+  it("combines caller cancellation with the client timeout signal", async () => {
+    let requestInit: RequestInit | undefined;
+    const request = vi.fn<typeof fetch>().mockImplementation(async (_input, init) => {
+      requestInit = init;
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    });
+    const caller = new AbortController();
+    const client = createHttpClient("https://api.example.com", { fetch: request });
+
+    await client.get<{ ok: boolean }>("/health", { signal: caller.signal });
+    expect(requestInit?.signal).not.toBe(caller.signal);
+    caller.abort();
+    expect(requestInit?.signal?.aborted).toBe(true);
+  });
 });
