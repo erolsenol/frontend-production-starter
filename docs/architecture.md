@@ -26,3 +26,4 @@ Dependency rules:
 - `@repo/data-access` owns repository interfaces and disposable reference adapters; application features depend on the interface rather than mock arrays or provider SDKs.
 - `apps/admin/app/api/health/route.ts` is a provider-independent readiness endpoint; infrastructure can use it before adding deployment-specific checks.
 - Keep mock data and demo auth behind replaceable adapters. Production integrations should validate environment variables, enforce permissions at mutation boundaries, and preserve the shared contracts.
+- `apps/admin/lib/access.ts` exposes `createAdminPermissionGuard`; connect a real `AuthAdapter` there before enabling production routes. The default demo composition is denied in production.
