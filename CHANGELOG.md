@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0
+
+- Added reusable accessible `Dialog` and `ConfirmDialog` UI primitives.
+- Replaced browser-native user deletion confirmation with a reusable destructive action dialog.
+- Added provider-neutral `requireSession` and typed unauthenticated errors.
+- Stabilized parallel E2E fixtures so destructive tests do not affect filtering tests.
+
 ## 0.6.0
 
 - Added a validated Users API with list, invite, and delete operations backed by a replaceable repository contract.
