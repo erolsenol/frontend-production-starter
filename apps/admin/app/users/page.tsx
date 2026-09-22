@@ -2,24 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { UserStatus, UserSummary } from "@repo/contracts";
-import type { SubmitState } from "@repo/forms";
 import type { Notification } from "@repo/notifications";
 import type { Paginated } from "@repo/types";
-import { Button, Card, ConfirmDialog, Dialog, EmptyState } from "@repo/ui";
-import { inviteUserSchema } from "@repo/validators";
-import { createUser, listUsers, removeUser, updateUserStatus as updateUserStatusRequest } from "../../features/users/user-api";
+import { Button, Card, ConfirmDialog, EmptyState } from "@repo/ui";
+import { listUsers, removeUser, updateUserStatus as updateUserStatusRequest } from "../../features/users/user-api";
+import { InviteUserDialog } from "../../features/users/invite-user-dialog";
 import { UserTable } from "../../features/users/user-table";
 
 const pageSize = 4;
-const roles = ["Administrator", "Developer", "Analyst", "Viewer"] as const;
-
-interface InviteFormState {
-  readonly name: string;
-  readonly email: string;
-  readonly role: string;
-}
-
-const initialInviteForm: InviteFormState = { name: "", email: "", role: "Developer" };
 const emptyPage: Paginated<UserSummary> = { items: [], pageInfo: { page: 1, pageSize, total: 0, totalPages: 1 } };
 
 export default function UsersPage() {
@@ -30,8 +20,6 @@ export default function UsersPage() {
   const [isLoading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isInviteOpen, setInviteOpen] = useState(false);
-  const [form, setForm] = useState<InviteFormState>(initialInviteForm);
-  const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
   const [notification, setNotification] = useState<Notification | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserSummary | null>(null);
 
@@ -54,26 +42,12 @@ export default function UsersPage() {
     return () => controller.abort();
   }, [loadUsers]);
 
-  const openInvite = () => { setForm(initialInviteForm); setSubmitState({ status: "idle" }); setInviteOpen(true); };
+  const openInvite = () => setInviteOpen(true);
 
-  const submitInvite = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const result = inviteUserSchema.safeParse(form);
-    if (!result.success) {
-      setSubmitState({ status: "error", message: result.error.issues[0]?.message ?? "Check the form fields." });
-      return;
-    }
-    setSubmitState({ status: "submitting" });
-    try {
-      const createdUser = await createUser(result.data);
-      setInviteOpen(false);
-      setSubmitState({ status: "success", message: "User invitation created." });
-      setNotification({ id: createdUser.id, tone: "success", title: "Invitation created", description: `${createdUser.email} can now join the workspace.` });
-      setPage(1);
-      await loadUsers();
-    } catch (cause: unknown) {
-      setSubmitState({ status: "error", message: cause instanceof Error ? cause.message : "Unable to invite user." });
-    }
+  const handleUserCreated = async (createdUser: UserSummary) => {
+    setNotification({ id: createdUser.id, tone: "success", title: "Invitation created", description: `${createdUser.email} can now join the workspace.` });
+    setPage(1);
+    await loadUsers();
   };
 
   const deleteUser = async (user: UserSummary) => {
@@ -114,15 +88,7 @@ export default function UsersPage() {
       {isLoading ? <div className="empty-state" role="status" aria-busy="true"><h3>Loading users…</h3><p>Fetching the latest workspace members.</p></div> : error ? <div className="empty-state" role="alert"><h3>Unable to load users</h3><p>{error}</p><Button onClick={() => void loadUsers()}>Try again</Button></div> : visibleUsers.length === 0 ? <EmptyState title="No users found" description="Try changing your search or filters." /> : <UserTable users={visibleUsers} onStatusChange={(user, nextStatus) => void updateUserStatus(user, nextStatus)} onDelete={requestDelete} />}
       {!isLoading && !error && userPage.pageInfo.total > 0 && <div className="pagination" aria-label="Users pagination"><span>Showing {range.start}–{range.end} of {userPage.pageInfo.total}</span><div><button type="button" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>Previous</button><span aria-label={`Page ${page} of ${pageCount}`}>{page} / {pageCount}</span><button type="button" disabled={page === pageCount} onClick={() => setPage((current) => current + 1)}>Next</button></div></div>}
     </Card>
-    <Dialog open={isInviteOpen} title="Invite user" description="Add a teammate to this workspace." closeLabel="Close invite dialog" onClose={() => setInviteOpen(false)}>
-      <form onSubmit={(event) => void submitInvite(event)}>
-        <label>Name<input required value={form.name} onChange={(event) => { const value = event.currentTarget.value; setForm((current) => ({ ...current, name: value })); }} /></label>
-        <label>Email<input required type="email" value={form.email} onChange={(event) => { const value = event.currentTarget.value; setForm((current) => ({ ...current, email: value })); }} /></label>
-        <label>Role<select value={form.role} onChange={(event) => { const value = event.currentTarget.value; setForm((current) => ({ ...current, role: value })); }}>{roles.map((role) => <option key={role}>{role}</option>)}</select></label>
-        {submitState.status === "error" && <p className="form-error" role="alert">{submitState.message}</p>}
-        <div className="modal-actions"><Button type="button" onClick={() => setInviteOpen(false)}>Cancel</Button><Button type="submit" variant="primary" disabled={submitState.status === "submitting"}>{submitState.status === "submitting" ? "Inviting…" : "Invite user"}</Button></div>
-      </form>
-    </Dialog>
+    <InviteUserDialog open={isInviteOpen} onClose={() => setInviteOpen(false)} onCreated={(user) => void handleUserCreated(user)} />
     <ConfirmDialog open={userToDelete !== null} title="Remove user" description={userToDelete ? `Remove ${userToDelete.name} from this workspace? This action cannot be undone.` : ""} confirmLabel="Remove user" onCancel={() => setUserToDelete(null)} onConfirm={() => { if (userToDelete) void deleteUser(userToDelete); setUserToDelete(null); }} />
   </div>;
 }
