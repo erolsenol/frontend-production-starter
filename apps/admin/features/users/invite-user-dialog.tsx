@@ -9,33 +9,28 @@ import { createUser } from "./user-api";
 
 const roles = ["Administrator", "Developer", "Analyst", "Viewer"] as const;
 
-interface InviteFormState {
-  readonly name: string;
-  readonly email: string;
-  readonly role: string;
-}
-
 interface InviteUserDialogProps {
   readonly open: boolean;
   readonly onClose: () => void;
   readonly onCreated: (user: UserSummary) => void;
 }
 
-const initialForm: InviteFormState = { name: "", email: "", role: "Developer" };
-
 export function InviteUserDialog({ open, onClose, onCreated }: InviteUserDialogProps) {
-  const [form, setForm] = useState<InviteFormState>(initialForm);
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
 
   const close = () => {
-    setForm(initialForm);
     setSubmitState({ status: "idle" });
     onClose();
   };
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const result = inviteUserSchema.safeParse(form);
+    const formData = new FormData(event.currentTarget);
+    const result = inviteUserSchema.safeParse({
+      name: formData.get("name"),
+      email: formData.get("email"),
+      role: formData.get("role"),
+    });
     if (!result.success) {
       setSubmitState({ status: "error", message: result.error.issues[0]?.message ?? "Check the form fields." });
       return;
@@ -53,10 +48,10 @@ export function InviteUserDialog({ open, onClose, onCreated }: InviteUserDialogP
 
   return (
     <Dialog open={open} title="Invite user" description="Add a teammate to this workspace." closeLabel="Close invite dialog" onClose={close}>
-      <form onSubmit={(event) => void submit(event)}>
-        <label>Name<input required value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.currentTarget.value }))} /></label>
-        <label>Email<input required type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.currentTarget.value }))} /></label>
-        <label>Role<select value={form.role} onChange={(event) => setForm((current) => ({ ...current, role: event.currentTarget.value }))}>{roles.map((role) => <option key={role}>{role}</option>)}</select></label>
+      <form key={open ? "open" : "closed"} onSubmit={(event) => void submit(event)}>
+        <label htmlFor="invite-user-name">Name</label><input id="invite-user-name" name="name" required />
+        <label htmlFor="invite-user-email">Email</label><input id="invite-user-email" name="email" required type="email" />
+        <label htmlFor="invite-user-role">Role</label><select id="invite-user-role" name="role" defaultValue="Developer">{roles.map((role) => <option key={role}>{role}</option>)}</select>
         {submitState.status === "error" && <p className="form-error" role="alert">{submitState.message}</p>}
         <div className="modal-actions"><Button type="button" onClick={close}>Cancel</Button><Button type="submit" variant="primary" disabled={submitState.status === "submitting"}>{submitState.status === "submitting" ? "Inviting…" : "Invite user"}</Button></div>
       </form>

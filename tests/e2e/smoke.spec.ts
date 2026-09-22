@@ -17,8 +17,8 @@ test("admin users flow creates an invitation", async ({ page }) => {
   await page.getByRole("button", { name: /Invite user/ }).click();
   await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
   const dialog = page.getByRole("dialog", { name: "Invite user" });
-  await dialog.getByRole("textbox").nth(0).fill("Alex Morgan");
-  await dialog.getByRole("textbox").nth(1).fill("alex@example.com");
+  await dialog.locator("#invite-user-name").fill("Alex Morgan");
+  await dialog.locator("#invite-user-email").fill("alex@example.com");
   await dialog.getByRole("button", { name: "Invite user" }).click();
   await expect(page.getByText("Invitation created")).toBeVisible();
   await page.getByRole("searchbox", { name: "Search users" }).fill("alex@example.com");
