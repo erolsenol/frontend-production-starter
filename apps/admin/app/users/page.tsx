@@ -5,7 +5,7 @@ import type { UserStatus, UserSummary } from "@repo/contracts";
 import type { SubmitState } from "@repo/forms";
 import type { Notification } from "@repo/notifications";
 import type { Paginated } from "@repo/types";
-import { Button, Card, EmptyState } from "@repo/ui";
+import { Button, Card, ConfirmDialog, EmptyState } from "@repo/ui";
 import { inviteUserSchema, userPageSchema, userSummarySchema } from "@repo/validators";
 
 const pageSize = 4;
@@ -40,6 +40,7 @@ export default function UsersPage() {
   const [form, setForm] = useState<InviteFormState>(initialInviteForm);
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
   const [notification, setNotification] = useState<Notification | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserSummary | null>(null);
   const closeInviteButtonRef = useRef<HTMLButtonElement>(null);
 
   const loadUsers = useCallback(async (signal?: AbortSignal) => {
@@ -106,7 +107,6 @@ export default function UsersPage() {
   };
 
   const deleteUser = async (user: UserSummary) => {
-    if (!window.confirm(`Remove ${user.name}?`)) return;
     const response = await fetch(`/api/users/${encodeURIComponent(user.id)}`, { method: "DELETE" });
     if (!response.ok) {
       setNotification({ id: user.id, tone: "error", title: "User was not removed", description: await readErrorMessage(response) });
@@ -118,6 +118,8 @@ export default function UsersPage() {
     if (nextPage === page) await loadUsers();
   };
 
+  const requestDelete = (user: UserSummary) => setUserToDelete(user);
+
   const visibleUsers = userPage.items;
   const pageCount = userPage.pageInfo.totalPages;
   const range = useMemo(() => ({ start: userPage.pageInfo.total === 0 ? 0 : (page - 1) * pageSize + 1, end: Math.min(page * pageSize, userPage.pageInfo.total) }), [page, userPage.pageInfo.total]);
@@ -127,9 +129,10 @@ export default function UsersPage() {
     <div className="page-heading"><div><h1>Users</h1><p>Manage access to your workspace.</p></div><Button className="invite-button" variant="primary" onClick={openInvite}>+ Invite user</Button></div>
     <Card className="list-card">
       <div className="filter-bar"><input type="search" className="filter-input" value={query} onChange={(event) => { setQuery(event.currentTarget.value); setPage(1); }} placeholder="Search users..." aria-label="Search users" /><select value={status} onChange={(event) => { setStatus(event.currentTarget.value as UserStatus | "all"); setPage(1); }} aria-label="Filter by status"><option value="all">All statuses</option><option value="active">Active</option><option value="invited">Invited</option><option value="suspended">Suspended</option></select></div>
-      {isLoading ? <div className="empty-state" role="status" aria-busy="true"><h3>Loading users…</h3><p>Fetching the latest workspace members.</p></div> : error ? <div className="empty-state" role="alert"><h3>Unable to load users</h3><p>{error}</p><Button onClick={() => void loadUsers()}>Try again</Button></div> : visibleUsers.length === 0 ? <EmptyState title="No users found" description="Try changing your search or filters." /> : <div className="table-wrap"><table><thead><tr><th scope="col">User</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Last active</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead><tbody>{visibleUsers.map((user) => <tr key={user.id}><td><span className="table-user"><span className="avatar small">{user.name.split(" ").map((part) => part[0]).join("")}</span><span><strong>{user.name}</strong><small>{user.email}</small></span></span></td><td>{user.role}</td><td><span className={`status status-${user.status}`}>{user.status}</span></td><td>{user.lastActive}</td><td><button className="more-button" type="button" aria-label={`Delete ${user.name}`} onClick={() => void deleteUser(user)}>Delete</button></td></tr>)}</tbody></table></div>}
+      {isLoading ? <div className="empty-state" role="status" aria-busy="true"><h3>Loading users…</h3><p>Fetching the latest workspace members.</p></div> : error ? <div className="empty-state" role="alert"><h3>Unable to load users</h3><p>{error}</p><Button onClick={() => void loadUsers()}>Try again</Button></div> : visibleUsers.length === 0 ? <EmptyState title="No users found" description="Try changing your search or filters." /> : <div className="table-wrap"><table><thead><tr><th scope="col">User</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Last active</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead><tbody>{visibleUsers.map((user) => <tr key={user.id}><td><span className="table-user"><span className="avatar small">{user.name.split(" ").map((part) => part[0]).join("")}</span><span><strong>{user.name}</strong><small>{user.email}</small></span></span></td><td>{user.role}</td><td><span className={`status status-${user.status}`}>{user.status}</span></td><td>{user.lastActive}</td><td><button className="more-button" type="button" aria-label={`Delete ${user.name}`} onClick={() => requestDelete(user)}>Delete</button></td></tr>)}</tbody></table></div>}
       {!isLoading && !error && userPage.pageInfo.total > 0 && <div className="pagination" aria-label="Users pagination"><span>Showing {range.start}–{range.end} of {userPage.pageInfo.total}</span><div><button type="button" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>Previous</button><span aria-label={`Page ${page} of ${pageCount}`}>{page} / {pageCount}</span><button type="button" disabled={page === pageCount} onClick={() => setPage((current) => current + 1)}>Next</button></div></div>}
     </Card>
     {isInviteOpen && <div className="modal-backdrop" role="presentation"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="invite-user-title" aria-describedby="invite-user-description"><div className="modal-heading"><div><h2 id="invite-user-title">Invite user</h2><p id="invite-user-description">Add a teammate to this workspace.</p></div><button ref={closeInviteButtonRef} type="button" aria-label="Close invite dialog" onClick={() => setInviteOpen(false)}>×</button></div><form onSubmit={(event) => void submitInvite(event)}><label>Name<input required value={form.name} onChange={(event) => { const value = event.currentTarget.value; setForm((current) => ({ ...current, name: value })); }} /></label><label>Email<input required type="email" value={form.email} onChange={(event) => { const value = event.currentTarget.value; setForm((current) => ({ ...current, email: value })); }} /></label><label>Role<select value={form.role} onChange={(event) => { const value = event.currentTarget.value; setForm((current) => ({ ...current, role: value })); }}>{roles.map((role) => <option key={role}>{role}</option>)}</select></label>{submitState.status === "error" && <p className="form-error" role="alert">{submitState.message}</p>}<div className="modal-actions"><Button type="button" onClick={() => setInviteOpen(false)}>Cancel</Button><Button type="submit" variant="primary" disabled={submitState.status === "submitting"}>{submitState.status === "submitting" ? "Inviting…" : "Invite user"}</Button></div></form></section></div>}
+    <ConfirmDialog open={userToDelete !== null} title="Remove user" description={userToDelete ? `Remove ${userToDelete.name} from this workspace? This action cannot be undone.` : ""} confirmLabel="Remove user" onCancel={() => setUserToDelete(null)} onConfirm={() => { if (userToDelete) void deleteUser(userToDelete); setUserToDelete(null); }} />
   </div>;
 }

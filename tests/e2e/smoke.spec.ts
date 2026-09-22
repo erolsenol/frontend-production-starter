@@ -35,6 +35,16 @@ test("admin users invite dialog supports keyboard dismissal", async ({ page }) =
   await expect(dialog).not.toBeVisible();
 });
 
+test("admin users flow confirms destructive removal", async ({ page }) => {
+  await page.goto("/users");
+  await page.getByRole("button", { name: "Delete Sarah Lee" }).click();
+  const dialog = page.getByRole("dialog", { name: "Remove user" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText("Sarah Lee");
+  await dialog.getByRole("button", { name: "Remove user", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Delete Sarah Lee" })).not.toBeVisible();
+});
+
 test("admin health endpoint reports readiness", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBeTruthy();
