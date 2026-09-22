@@ -18,7 +18,7 @@ export interface UserListInput {
 export interface UserRepository {
   list(input?: UserListInput): Promise<Paginated<UserSummary>>;
   create(input: CreateUserInput): Promise<UserSummary>;
-  remove(id: string): Promise<void>;
+  remove(id: string): Promise<boolean>;
 }
 
 export class InMemoryUserRepository implements UserRepository {
@@ -65,8 +65,10 @@ export class InMemoryUserRepository implements UserRepository {
     return nextUser;
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<boolean> {
     const index = this.users.findIndex((user) => user.id === id);
-    if (index >= 0) this.users.splice(index, 1);
+    if (index < 0) return false;
+    this.users.splice(index, 1);
+    return true;
   }
 }

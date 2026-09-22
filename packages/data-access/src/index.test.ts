@@ -28,8 +28,9 @@ describe("InMemoryUserRepository", () => {
       status: "invited",
     });
 
-    await repository.remove("1");
+    await expect(repository.remove("1")).resolves.toBe(true);
     await expect(repository.list()).resolves.toMatchObject({ pageInfo: { total: 2 }, items: [{ id: "usr_03" }, { id: "2" }] });
+    await expect(repository.remove("missing")).resolves.toBe(false);
   });
 
   it("rejects invalid user input at the adapter boundary", async () => {

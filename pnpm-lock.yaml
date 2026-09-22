@@ -193,6 +193,9 @@ importers:
       '@repo/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@repo/data-access':
+        specifier: workspace:*
+        version: link:../../packages/data-access
       '@repo/forms':
         specifier: workspace:*
         version: link:../../packages/forms
@@ -202,6 +205,9 @@ importers:
       '@repo/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui

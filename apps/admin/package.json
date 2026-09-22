@@ -6,9 +6,11 @@
   "dependencies": {
     "@repo/api-client":"workspace:*",
     "@repo/contracts":"workspace:*",
+    "@repo/data-access":"workspace:*",
     "@repo/forms":"workspace:*",
     "@repo/notifications":"workspace:*",
     "@repo/permissions":"workspace:*",
+    "@repo/types":"workspace:*",
     "@repo/ui":"workspace:*",
     "@repo/validators":"workspace:*",
     "lucide-react":"^0.468.0",
