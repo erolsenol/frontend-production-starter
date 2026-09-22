@@ -25,6 +25,16 @@ test("admin users flow creates an invitation", async ({ page }) => {
   await expect(page.getByText("Alex Morgan")).toBeVisible();
 });
 
+test("admin users invite dialog supports keyboard dismissal", async ({ page }) => {
+  await page.goto("/users");
+  await page.getByRole("button", { name: /Invite user/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Invite user" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Close invite dialog" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+});
+
 test("admin health endpoint reports readiness", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBeTruthy();
