@@ -60,6 +60,15 @@ test("admin health endpoint reports readiness", async ({ request }) => {
   await expect(response.json()).resolves.toMatchObject({ status: "ok", service: "admin" });
 });
 
+test("admin exposes public authentication recovery pages", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.getByRole("heading", { name: "Hoş geldiniz" })).toBeVisible();
+  await page.getByRole("link", { name: "Parolamı unuttum" }).click();
+  await expect(page.getByRole("heading", { name: "Parolanızı sıfırlayın" })).toBeVisible();
+  await page.goto("/reset-password");
+  await expect(page.getByRole("heading", { name: "Yeni parola belirleyin" })).toBeVisible();
+});
+
 test("docs app exposes onboarding guidance", async ({ page }) => {
   await page.goto("http://localhost:3102");
   await expect(page.getByRole("heading", { name: /Build your next app/i })).toBeVisible();

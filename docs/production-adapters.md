@@ -27,7 +27,9 @@ The database schema includes `audit_log`; user and role mutations emit events wi
 
 ## Observability
 
-`@repo/logger` remains the structured, redacting log boundary. `@repo/observability` exposes OpenTelemetry tracer/counter/histogram instruments without choosing an exporter. Register an OpenTelemetry SDK/exporter in the deployment runtime and keep secrets and PII out of attributes. The package is exporter-neutral so teams can use any OTLP-compatible backend.
+`@repo/logger` remains the structured, redacting log boundary. `@repo/observability` exposes OpenTelemetry tracer/counter/histogram instruments and an optional OTLP HTTP runtime. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to start the Node SDK during Next.js instrumentation; keep secrets and PII out of attributes. The package remains exporter-neutral at deployment level because any OTLP-compatible collector can be used.
+
+Email verification and password reset are enabled when `EMAIL_WEBHOOK_URL` is configured. The webhook receives a typed `EmailMessage`; this keeps SMTP, Resend, Postmark, or an internal mail service replaceable without coupling the auth package to a vendor.
 
 ## Deployment gate
 

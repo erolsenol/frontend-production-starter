@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function LoginPage() {
       <label>E-posta<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
       <label>Parola<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="ui-button ui-button-primary ui-button-md" type="submit" disabled={loading}>{loading ? "Giriş yapılıyor..." : "Giriş yap"}</button>
+      <button className="ui-button ui-button-primary ui-button-md" type="submit" disabled={loading}>{loading ? "Giriş yapılıyor..." : "Giriş yap"}</button><Link href="/forgot-password" className="auth-link">Parolamı unuttum</Link>
     </form>
   </section></main>;
 }

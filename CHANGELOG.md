@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.0
+
+- Added provider-neutral email delivery contracts for Better Auth email verification and password reset.
+- Added public login, forgot-password, and reset-password flows.
+- Added optional OpenTelemetry Node SDK with OTLP HTTP trace and metric exporters through Next.js instrumentation.
+- Added email and recovery browser smoke coverage and updated production environment/onboarding documentation.
+
 ## 0.14.0
 
 - Connected production authorization to database-backed user roles and permissions instead of granting a static permission set.

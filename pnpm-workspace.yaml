@@ -5,6 +5,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+  protobufjs: true
 
 overrides:
   vite: ">=6.4.3"

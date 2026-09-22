@@ -58,8 +58,9 @@ packages/tables         Data table contracts
 packages/permissions    RBAC permission model
 packages/design-tokens  Shared visual tokens
 packages/database       Drizzle PostgreSQL/Neon schema and repositories
+packages/email          Provider-neutral verification and password-reset email contract
 packages/rate-limit-upstash  Optional distributed rate-limit adapter
-packages/observability  OpenTelemetry trace/metric boundary
+packages/observability  OpenTelemetry trace/metric boundary and OTLP runtime
 ```
 
 ## Commands
@@ -92,6 +93,8 @@ The application uses a replaceable adapter boundary: the demo runs with local mo
 See [docs/architecture.md](./docs/architecture.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 For connecting a real authentication provider and database, see [docs/production-adapters.md](./docs/production-adapters.md).
+
+For a production setup, copy `.env.example`, configure PostgreSQL/Neon, Better Auth, Upstash, and optionally an email webhook/OTLP collector. Apply migrations with `pnpm db:migrate` only after verifying that `DATABASE_URL` targets the intended database.
 
 ## License
 
