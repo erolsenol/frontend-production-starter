@@ -1,38 +1,32 @@
 # Production adapter handoff
 
-The starter ships with an optional production composition using Better Auth, Drizzle, PostgreSQL/Neon, and Upstash. The provider boundaries remain replaceable, while the public reference app stays demo-first by default and fails closed when `NODE_ENV=production` or `DEMO_MODE=false` without production configuration.
+The public starter is demo-first but includes a replaceable production composition. The default reference uses Better Auth, Drizzle/PostgreSQL or Neon, Upstash, a webhook email sender, and an OTLP-compatible collector. The contracts are intentionally vendor-neutral.
 
 ## Auth
 
-The default production composition creates a Better Auth adapter from `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `BETTER_AUTH_URL`. To replace it, implement the `AuthAdapter` contract from `@repo/auth` and compose it at the server boundary:
+Configure `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `BETTER_AUTH_URL` for the Better Auth composition. If another identity provider is required, implement `AuthAdapter` from `@repo/auth` and compose it at the server boundary. The adapter must return a validated session from a secure, httpOnly, sameSite cookie or equivalent server-side mechanism.
 
-```ts
-configureAdminAccess({
-  auth: providerAuthAdapter,
-  permissions: await providerPermissionsForSession(),
-});
-```
+Auth recovery uses `@repo/email` when `EMAIL_WEBHOOK_URL` is configured. The webhook receives a typed `EmailMessage` for verification and password-reset links; SMTP, Resend, Postmark, or an internal mail service can implement that boundary without changing the auth package.
 
-The adapter must read an httpOnly, secure, sameSite session and return a validated `Session`. Do not put access tokens in localStorage or expose provider secrets to client components.
+## Data and RBAC
 
-## Data
+Implement `UserRepository` and `RoleRepository` from `@repo/data-access` when replacing the database adapter. Validate inputs with the existing schemas and parameterize queries. Register adapters in the server composition, not in client components.
 
-The default production composition registers Drizzle repositories from `@repo/database`. They use SQL-side filtering/pagination and transactional multi-table creates. If you replace them, implement `UserRepository` and `RoleRepository` from `@repo/data-access`, validate inputs with the existing Zod schemas, and parameterize every query. Register both adapters with `configureUserRepository` and `configureRoleRepository` during server composition.
-
-The in-memory repositories are only for local demo/test mode. They are not durable, multi-instance safe, or suitable for PII.
+The PostgreSQL reference resolves permissions through `user_role` and `role_permission`, performs filtering/pagination in SQL, and uses transactions for multi-table writes. The in-memory adapter is disposable demo/test infrastructure and is not durable or multi-instance safe.
 
 ## Audit and rate limiting
 
-The database schema includes `audit_log`; user and role mutations emit events with actor, resource, request ID, and redacted request context. `@repo/rate-limit-upstash` is used for production authentication and mutations when `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are present. Missing rate-limit configuration fails closed in production with `503`; local demo/test bypasses it.
+Mutation routes emit audit events with actor, resource, request ID, and redacted request context. Configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for distributed auth and mutation rate limiting. Missing production rate-limit configuration fails closed with `503`; local demo/test mode may bypass the external adapter.
 
 ## Observability
 
-`@repo/logger` remains the structured, redacting log boundary. `@repo/observability` exposes OpenTelemetry tracer/counter/histogram instruments and an optional OTLP HTTP runtime. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to start the Node SDK during Next.js instrumentation; keep secrets and PII out of attributes. The package remains exporter-neutral at deployment level because any OTLP-compatible collector can be used.
+`@repo/logger` is the structured, redacting log boundary. `@repo/observability` exposes OpenTelemetry tracer/counter/histogram instruments and an optional OTLP HTTP runtime. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to start the Node.js SDK during Next instrumentation. Keep tokens, passwords, cookies, email addresses, and sensitive request bodies out of attributes.
 
-Email verification and password reset are enabled when `EMAIL_WEBHOOK_URL` is configured. The webhook receives a typed `EmailMessage`; this keeps SMTP, Resend, Postmark, or an internal mail service replaceable without coupling the auth package to a vendor.
+## Handoff checklist
 
-## Deployment gate
+1. Copy `.env.example` and set server-only production values.
+2. Verify the effective database target before `pnpm db:migrate`.
+3. Run `pnpm verify`.
+4. Verify real login, recovery email, RBAC denial/allow, durable audit writes, rate limiting, readiness, and telemetry separately.
 
-- `GET /api/health` is liveness.
-- `GET /api/health/ready` is readiness. In production it validates the required auth/database configuration and performs a lightweight PostgreSQL connectivity probe; it returns `503` when configuration or connectivity is unavailable.
-- Run `pnpm verify` after connecting providers, then verify authenticated browser flows and database read/write behavior separately.
+See [Operations](./operations.md) for the distinction between local test evidence and public production proof.

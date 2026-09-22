@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.1
+
+- Added a documentation map, getting-started, testing, operations, and production adapter guides.
+- Added root AI contribution rules, task playbooks, and architecture decision records.
+- Updated the local docs app with the current package/runtime map and contributor paths.
+
 ## 0.15.0
 
 - Added provider-neutral email delivery contracts for Better Auth email verification and password reset.

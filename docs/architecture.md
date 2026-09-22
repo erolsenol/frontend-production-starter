@@ -1,34 +1,72 @@
 # Architecture
 
-`apps/admin` owns routing, page composition, and product-specific features. Shared packages own stable contracts and reusable capabilities.
-
-Start with `examples/minimal-next-app` for a small product. Add optional packages only when the product needs them. `apps/admin` is intentionally more complete and demonstrates how the same packages compose into a data-rich application.
+Frontend Production Starter has three intentional layers:
 
 ```text
-page / server component
+examples/minimal-next-app   five-minute onboarding path
+apps/admin                  complete reference product and server composition
+apps/docs                   local visual documentation index
+        │
+        ▼
+packages/*                  contracts, capabilities, and provider boundaries
+```
+
+## Dependency direction
+
+```text
+route / Server Component
         ↓
 feature query or action
         ↓
-repository / API adapter
+application composition
         ↓
-contracts + validators
+repository / provider adapter
+        ↓
+typed contract + runtime validator
 ```
 
-Dependency rules:
+`apps/*` may consume `packages/*`. Packages do not import an app or a feature. Shared packages should remain framework-light unless their purpose is explicitly UI or layout. Product decisions belong in the app; stable vocabulary and replaceable capabilities belong in packages.
 
-- `@repo/contracts` has no UI or Next.js dependency.
-- `@repo/ui` contains presentation only.
-- `@repo/api-client` does not import the admin app.
-- Features may consume shared packages; shared packages must not import features.
-- Permission checks happen in both rendered actions and mutation boundaries.
-- `@repo/ui` is presentation-only; feature code stays in an app or feature package.
-- `@repo/http`, `@repo/auth`, and `@repo/logger` are adapter boundaries, not provider implementations.
-- `@repo/data-access` owns repository interfaces and disposable reference adapters; application features depend on the interface rather than mock arrays or provider SDKs.
-- `apps/admin/app/api/health/route.ts` is a provider-independent readiness endpoint; infrastructure can use it before adding deployment-specific checks.
-- `apps/admin/app/api/health/ready` is the stricter deployment gate: local demo returns ready, while production remains `503 not_ready` until real auth and data adapters are wired.
-- Admin API mutations use `x-request-id` correlation and reject a mismatching `Origin` when the browser provides one. Distributed rate limiting remains an infrastructure adapter concern and is intentionally not faked by the in-memory demo.
-- `apps/admin/app/api/roles` is the reference vertical slice for Roles & Permissions: canonical permission catalog, runtime validation, repository boundary, protected API, and client UI.
-- Runtime configuration rejects `DEMO_MODE=true`, `AUTH_PROVIDER=demo`, or `DATA_SOURCE=memory` when `NODE_ENV=production`.
-- Provider-neutral composition helpers (`configureAdminAccess`, `configureUserRepository`, `configureRoleRepository`) keep the boundaries replaceable; the default production composition wires Better Auth, Drizzle/PostgreSQL and database-backed RBAC.
-- Keep mock data and demo auth behind replaceable adapters. Production integrations should validate environment variables, enforce permissions at mutation boundaries, and preserve the shared contracts.
-- `apps/admin/lib/access.ts` exposes `createAdminPermissionGuard`; production resolves permissions from `user_role` and `role_permission` for the authenticated user. The default demo composition is denied in production.
+## Package roles
+
+| Area | Packages | Responsibility |
+| --- | --- | --- |
+| Vocabulary | `types`, `contracts`, `validators`, `permissions` | shared types, domain contracts, input validation, RBAC model |
+| UI | `ui`, `layout`, `design-tokens`, `tables`, `forms` | reusable presentation and interaction contracts |
+| Boundary | `http`, `api-client`, `auth`, `data-access`, `database` | typed transport, auth/session, repositories, PostgreSQL implementation |
+| Runtime | `logger`, `observability`, `email`, `rate-limit-upstash`, `feature-flags` | replaceable operational capabilities |
+| Test/config | `testing`, `eslint-config`, `typescript-config` | workspace-wide tooling and test helpers |
+
+Package manifests and exports are authoritative for the exact API. The table explains ownership and dependency direction, not every export.
+
+## Admin reference composition
+
+`apps/admin/lib/production-composition.ts` is the server-side composition root. It lazily wires Better Auth, Drizzle/PostgreSQL repositories, database-backed permission resolution, audit storage, optional Upstash rate limiting, and optional email delivery. The UI consumes contracts and does not know which provider implements them.
+
+The default local composition is deliberately different: demo auth, in-memory repositories, and deterministic seed data. Runtime configuration rejects demo auth or memory data when `NODE_ENV=production` or a non-demo mode requests production behavior.
+
+## Request and mutation path
+
+```text
+browser
+  → Next route
+  → request ID + origin check + rate limit
+  → session/auth adapter
+  → permission guard
+  → Zod/runtime validation
+  → repository transaction
+  → audit event + redacted structured log
+  → typed response
+```
+
+Protected actions check permissions in the rendered UI for discoverability and again at the mutation boundary for correctness. User and role mutations use SQL-side filtering/pagination and transactions where more than one table changes. Audit events preserve actor, resource, request ID, and redacted context.
+
+## Operational boundaries
+
+- `GET /api/health` is provider-independent liveness.
+- `GET /api/health/ready` validates production configuration and probes PostgreSQL.
+- `@repo/email` sends typed verification/reset messages through a server-side provider boundary.
+- `@repo/observability` exposes OpenTelemetry instruments and starts an OTLP runtime only from the Node.js instrumentation hook when configured.
+- `@repo/rate-limit-upstash` is the distributed production adapter; local demo mode does not pretend that an in-memory limit is multi-instance safe.
+
+See [Production adapters](./production-adapters.md), [Operations](./operations.md), and the [ADRs](./decisions/README.md) for rationale and deployment responsibilities.

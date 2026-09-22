@@ -6,7 +6,7 @@ export function GET() {
   return NextResponse.json({
     status: "ok",
     service: "admin",
-    version: process.env.npm_package_version ?? "0.15.0",
+    version: process.env.npm_package_version ?? "0.15.1",
     timestamp: new Date().toISOString(),
   }, { headers: { "cache-control": "no-store" } });
 }

@@ -90,11 +90,13 @@ The starter is intentionally demo-first. `apps/admin` is a reference application
 
 The application uses a replaceable adapter boundary: the demo runs with local mock data, while a real API can be introduced without rewriting feature components. Shared packages do not depend on the admin app, and business features do not leak into `@repo/ui`.
 
-See [docs/architecture.md](./docs/architecture.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
+See the [documentation map](./docs/README.md), [architecture guide](./docs/architecture.md), and [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 For connecting a real authentication provider and database, see [docs/production-adapters.md](./docs/production-adapters.md).
 
 For a production setup, copy `.env.example`, configure PostgreSQL/Neon, Better Auth, Upstash, and optionally an email webhook/OTLP collector. Apply migrations with `pnpm db:migrate` only after verifying that `DATABASE_URL` targets the intended database.
+
+AI contributors should start with [AGENTS.md](./AGENTS.md) and the task-specific guides in [docs/ai](./docs/ai/README.md). Architectural rationale is recorded in [docs/decisions](./docs/decisions/README.md).
 
 ## License
 
