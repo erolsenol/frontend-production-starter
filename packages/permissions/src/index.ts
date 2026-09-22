@@ -14,3 +14,16 @@ export interface AccessContext {
 
 export const can = (context: AccessContext, permission: Permission): boolean =>
   context.permissions.includes(permission);
+
+export class ForbiddenError extends Error {
+  readonly code = "FORBIDDEN" as const;
+
+  constructor(permission: Permission) {
+    super(`Missing permission: ${permission}`);
+    this.name = "ForbiddenError";
+  }
+}
+
+export const assertPermission = (context: AccessContext, permission: Permission): void => {
+  if (!can(context, permission)) throw new ForbiddenError(permission);
+};
