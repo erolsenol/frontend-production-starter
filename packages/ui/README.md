@@ -6,4 +6,4 @@ Accessible, presentation-only UI primitives. Keep domain logic and data fetching
 import { Button, Card, ConfirmDialog, Dialog } from "@repo/ui";
 ```
 
-`Dialog` and `ConfirmDialog` manage keyboard dismissal and initial focus. Keep domain state and submit behavior in the consuming app.
+`Dialog` and `ConfirmDialog` manage Escape dismissal, initial focus, focus restoration, and Tab focus containment. Use `closeLabel` when a product-specific accessible label is part of the UI contract. Keep domain state and submit behavior in the consuming app.

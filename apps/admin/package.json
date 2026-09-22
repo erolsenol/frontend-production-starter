@@ -9,6 +9,7 @@
     "@repo/contracts":"workspace:*",
     "@repo/data-access":"workspace:*",
     "@repo/forms":"workspace:*",
+    "@repo/http":"workspace:*",
     "@repo/notifications":"workspace:*",
     "@repo/permissions":"workspace:*",
     "@repo/types":"workspace:*",

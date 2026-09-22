@@ -33,6 +33,7 @@ test("admin users invite dialog supports keyboard dismissal", async ({ page }) =
   await expect(dialog.getByRole("button", { name: "Close invite dialog" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("button", { name: /Invite user/ })).toBeFocused();
 });
 
 test("admin users flow confirms destructive removal", async ({ page }) => {

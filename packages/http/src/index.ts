@@ -10,6 +10,8 @@ export class HttpError extends Error implements ApiErrorShape {
 export interface HttpClient {
   get<T>(path: string, init?: RequestInit): Promise<T>;
   post<T, B>(path: string, body: B, init?: RequestInit): Promise<T>;
+  patch<T, B>(path: string, body: B, init?: RequestInit): Promise<T>;
+  delete<T = void>(path: string, init?: RequestInit): Promise<T>;
 }
 
 export interface HttpClientOptions {
@@ -19,7 +21,11 @@ export interface HttpClientOptions {
 
 const parseResponse = async <T>(response: Response): Promise<T> => {
   const payload: unknown = await response.json().catch(() => undefined);
-  if (!response.ok) { const data = typeof payload === "object" && payload !== null ? payload as Record<string, unknown> : {}; throw new HttpError({ status: response.status, code: typeof data.code === "string" ? data.code : undefined, message: typeof data.message === "string" ? data.message : "Request failed", details: data }); }
+  if (!response.ok) {
+    const data = typeof payload === "object" && payload !== null ? payload as Record<string, unknown> : {};
+    const error = typeof data.error === "object" && data.error !== null ? data.error as Record<string, unknown> : data;
+    throw new HttpError({ status: response.status, code: typeof error.code === "string" ? error.code : undefined, message: typeof error.message === "string" ? error.message : "Request failed", details: data });
+  }
   return payload as T;
 };
 
@@ -59,5 +65,14 @@ export const createHttpClient = (baseUrl: string, options: HttpClientOptions = {
           }, timeoutMs),
         ),
       ),
+    patch: async <T, B>(path: string, body: B, init?: RequestInit) =>
+      parseResponse<T>(
+        await request(
+          joinUrl(baseUrl, path),
+          withTimeout({ ...init, method: "PATCH", headers: { "content-type": "application/json", ...init?.headers }, body: JSON.stringify(body) }, timeoutMs),
+        ),
+      ),
+    delete: async <T = void>(path: string, init?: RequestInit) =>
+      parseResponse<T>(await request(joinUrl(baseUrl, path), withTimeout({ ...init, method: "DELETE" }, timeoutMs))),
   };
 };
