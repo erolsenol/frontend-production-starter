@@ -193,6 +193,12 @@ importers:
       '@repo/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@repo/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
+      '@repo/notifications':
+        specifier: workspace:*
+        version: link:../../packages/notifications
       '@repo/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions

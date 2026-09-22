@@ -12,6 +12,19 @@ test("admin users flow supports filtering", async ({ page }) => {
   await expect(page.getByText("Marcus Kim")).not.toBeVisible();
 });
 
+test("admin users flow creates an invitation", async ({ page }) => {
+  await page.goto("/users");
+  await page.getByRole("button", { name: /Invite user/ }).click();
+  await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
+  const dialog = page.getByRole("dialog", { name: "Invite user" });
+  await dialog.getByRole("textbox").nth(0).fill("Alex Morgan");
+  await dialog.getByRole("textbox").nth(1).fill("alex@example.com");
+  await dialog.getByRole("button", { name: "Invite user" }).click();
+  await expect(page.getByText("Invitation created")).toBeVisible();
+  await page.getByRole("searchbox", { name: "Search users" }).fill("alex@example.com");
+  await expect(page.getByText("Alex Morgan")).toBeVisible();
+});
+
 test("admin health endpoint reports readiness", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBeTruthy();
