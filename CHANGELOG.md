@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0
+
+- Added a validated Users API with list, invite, and delete operations backed by a replaceable repository contract.
+- Moved the Users reference UI from local-only state to the API boundary with loading, error, empty, pagination, and response validation states.
+- Added workspace-wide TypeScript checks for shared packages and fixed HTTP cancellation composition.
+- Added typed permission enforcement and accessible invite-dialog keyboard behavior.
+
 ## 0.5.0
 
 - Added the Users invite and delete workflow with search, status filters, pagination, notifications, and E2E coverage.
