@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0
+
+- Completed validated Users update and status CRUD across repository, API, typed client, UI, and E2E layers.
+- Added production-safe demo authentication and permission boundaries with explicit denial when a real provider is not configured.
+- Added safe feature, page, and package generators with overwrite protection and typed Users API adapter tests.
+
 ## 0.7.0
 
 - Added reusable accessible `Dialog` and `ConfirmDialog` UI primitives.
