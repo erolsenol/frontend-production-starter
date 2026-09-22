@@ -32,5 +32,12 @@ export const inviteUserSchema = z.object({
   role: z.string().trim().min(1).max(80),
 });
 
+export const updateUserSchema = z.object({
+  name: z.string().trim().min(2).max(80).optional(),
+  role: z.string().trim().min(1).max(80).optional(),
+  status: z.enum(["active", "invited", "suspended"]).optional(),
+}).refine((input) => Object.keys(input).length > 0, "At least one user field is required.");
+
 export type UserFilter = z.infer<typeof userFilterSchema>;
 export type InviteUserInput = z.infer<typeof inviteUserSchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;

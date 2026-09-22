@@ -79,7 +79,7 @@ Install the Playwright browser once before running E2E tests locally:
 pnpm exec playwright install chromium
 ```
 
-The starter is intentionally mock-first. `apps/admin` is a reference application, not a production backend: replace the demo auth adapter and local data with your provider/API/database adapters before using it with real users or sensitive data. The admin example exposes `GET /api/health` as a simple readiness endpoint. Run `pnpm verify` before publishing a change.
+The starter is intentionally mock-first. `apps/admin` is a reference application, not a production backend: replace the demo auth adapter and local data with your provider/API/database adapters before using it with real users or sensitive data. Demo auth is enabled outside production; production API routes deny access until a real provider boundary is connected. The admin example exposes `GET /api/health` as a simple readiness endpoint. Run `pnpm verify` before publishing a change.
 
 ## Architecture
 

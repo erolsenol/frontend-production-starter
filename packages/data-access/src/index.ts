@@ -1,6 +1,7 @@
 import type { UserStatus, UserSummary } from "@repo/contracts";
 import type { Paginated } from "@repo/types";
-import { inviteUserSchema, paginationSchema, userFilterSchema } from "@repo/validators";
+import { inviteUserSchema, paginationSchema, updateUserSchema, userFilterSchema } from "@repo/validators";
+import type { UpdateUserInput } from "@repo/validators";
 
 export type CreateUserInput = {
   readonly name: string;
@@ -18,6 +19,7 @@ export interface UserListInput {
 export interface UserRepository {
   list(input?: UserListInput): Promise<Paginated<UserSummary>>;
   create(input: CreateUserInput): Promise<UserSummary>;
+  update(id: string, input: UpdateUserInput): Promise<UserSummary | null>;
   remove(id: string): Promise<boolean>;
 }
 
@@ -70,5 +72,14 @@ export class InMemoryUserRepository implements UserRepository {
     if (index < 0) return false;
     this.users.splice(index, 1);
     return true;
+  }
+
+  async update(id: string, input: UpdateUserInput): Promise<UserSummary | null> {
+    const index = this.users.findIndex((user) => user.id === id);
+    if (index < 0) return null;
+    const update = updateUserSchema.parse(input);
+    const updated = { ...this.users[index], ...update };
+    this.users[index] = updated;
+    return updated;
   }
 }

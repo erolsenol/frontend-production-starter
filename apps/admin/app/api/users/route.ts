@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { paginationSchema, inviteUserSchema, userFilterSchema } from "@repo/validators";
 import { userRepository } from "../../../lib/user-repository";
+import { authErrorResponse, requireAdminPermission } from "../../../lib/access";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,7 @@ const validationError = (message: string, details: unknown) =>
   NextResponse.json({ error: { code: "VALIDATION_ERROR", message, details } }, { status: 422 });
 
 export async function GET(request: Request) {
+  try { await requireAdminPermission("users.read"); } catch (error: unknown) { return authErrorResponse(error); }
   const url = new URL(request.url);
   const filter = userFilterSchema.safeParse({ query: url.searchParams.get("query") ?? "", status: url.searchParams.get("status") ?? "all" });
   const pagination = paginationSchema.safeParse({ page: url.searchParams.get("page") ?? 1, pageSize: url.searchParams.get("pageSize") ?? 20 });
@@ -24,6 +26,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  try { await requireAdminPermission("users.create"); } catch (error: unknown) { return authErrorResponse(error); }
   let body: unknown;
   try {
     body = await request.json();

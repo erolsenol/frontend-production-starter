@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DELETE } from "./[id]/route";
+import { DELETE, PATCH } from "./[id]/route";
 import { GET, POST } from "./route";
 
 describe("users API", () => {
@@ -25,5 +25,14 @@ describe("users API", () => {
   it("returns not found when deleting an unknown user", async () => {
     const response = await DELETE(new Request("http://localhost/api/users/missing", { method: "DELETE" }), { params: Promise.resolve({ id: "missing" }) });
     expect(response.status).toBe(404);
+  });
+
+  it("updates a user status and validates the patch body", async () => {
+    const invalid = await PATCH(new Request("http://localhost/api/users/usr_01", { method: "PATCH", body: "{}" }), { params: Promise.resolve({ id: "usr_01" }) });
+    expect(invalid.status).toBe(422);
+
+    const response = await PATCH(new Request("http://localhost/api/users/usr_01", { method: "PATCH", body: JSON.stringify({ status: "suspended" }) }), { params: Promise.resolve({ id: "usr_01" }) });
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({ id: "usr_01", status: "suspended" });
   });
 });

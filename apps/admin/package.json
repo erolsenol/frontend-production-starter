@@ -5,6 +5,7 @@
   "scripts": {"dev":"next dev","build":"next build","start":"next start","lint":"eslint . --max-warnings 0","typecheck":"tsc --noEmit","test":"vitest run","coverage":"vitest run --coverage"},
   "dependencies": {
     "@repo/api-client":"workspace:*",
+    "@repo/auth":"workspace:*",
     "@repo/contracts":"workspace:*",
     "@repo/data-access":"workspace:*",
     "@repo/forms":"workspace:*",

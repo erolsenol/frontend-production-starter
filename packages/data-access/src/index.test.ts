@@ -37,4 +37,10 @@ describe("InMemoryUserRepository", () => {
     const repository = new InMemoryUserRepository(users);
     await expect(repository.create({ name: "A", email: "invalid", role: "" })).rejects.toThrow();
   });
+
+  it("updates a user and returns null for an unknown id", async () => {
+    const repository = new InMemoryUserRepository(users);
+    await expect(repository.update("1", { status: "suspended" })).resolves.toMatchObject({ id: "1", status: "suspended" });
+    await expect(repository.update("missing", { status: "active" })).resolves.toBeNull();
+  });
 });

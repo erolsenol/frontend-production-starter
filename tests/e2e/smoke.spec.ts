@@ -45,6 +45,14 @@ test("admin users flow confirms destructive removal", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Delete Marcus Kim" })).not.toBeVisible();
 });
 
+test("admin users flow updates status through the API", async ({ page }) => {
+  await page.goto("/users");
+  const status = page.getByRole("combobox", { name: "Update status for Daniel Torres" });
+  await status.selectOption("active");
+  await expect(status).toHaveValue("active");
+  await expect(page.getByText("User updated")).toBeVisible();
+});
+
 test("admin health endpoint reports readiness", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBeTruthy();
