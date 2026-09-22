@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { paginationSchema, inviteUserSchema, userFilterSchema } from "@repo/validators";
-import { userRepository } from "../../../lib/user-repository";
+import { getUserRepository } from "../../../lib/user-repository";
 import { authErrorResponse, requireAdminPermission } from "../../../lib/access";
 import { validationError } from "../../../lib/api-response";
 import { getRequestId, isSameOriginMutation, withRequestId } from "../../../lib/request-context";
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     }), requestId);
   }
 
-  const result = await userRepository.list({ ...filter.data, ...pagination.data });
+  const result = await getUserRepository().list({ ...filter.data, ...pagination.data });
   return withRequestId(NextResponse.json(result, { headers: { "cache-control": "no-store" } }), requestId);
 }
 
@@ -39,6 +39,6 @@ export async function POST(request: Request) {
   const input = inviteUserSchema.safeParse(body);
   if (!input.success) return withRequestId(validationError("Invalid user invitation.", input.error.flatten()), requestId);
 
-  const user = await userRepository.create(input.data);
+  const user = await getUserRepository().create(input.data);
   return withRequestId(NextResponse.json(user, { status: 201, headers: { "cache-control": "no-store" } }), requestId);
 }

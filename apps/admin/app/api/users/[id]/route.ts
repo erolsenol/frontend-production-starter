@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { updateUserSchema } from "@repo/validators";
-import { userRepository } from "../../../../lib/user-repository";
+import { getUserRepository } from "../../../../lib/user-repository";
 import { authErrorResponse, requireAdminPermission } from "../../../../lib/access";
 import { invalidIdError, noContent, notFoundError, validationError } from "../../../../lib/api-response";
 import { getRequestId, isSameOriginMutation, withRequestId } from "../../../../lib/request-context";
@@ -14,7 +14,7 @@ export async function DELETE(_request: Request, context: { params: Promise<{ id:
   const { id } = await context.params;
   if (!id) return withRequestId(invalidIdError(), requestId);
 
-  const removed = await userRepository.remove(id);
+  const removed = await getUserRepository().remove(id);
   if (!removed) return withRequestId(notFoundError(), requestId);
   return withRequestId(noContent(), requestId);
 }
@@ -35,7 +35,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const input = updateUserSchema.safeParse(body);
   if (!input.success) return withRequestId(validationError("Invalid user update.", input.error.flatten()), requestId);
-  const updated = await userRepository.update(id, input.data);
+  const updated = await getUserRepository().update(id, input.data);
   if (!updated) return withRequestId(notFoundError(), requestId);
   return withRequestId(NextResponse.json(updated, { headers: { "cache-control": "no-store" } }), requestId);
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createRoleSchema } from "@repo/validators";
 import { allPermissions } from "@repo/permissions";
-import { roleRepository } from "../../../lib/role-repository";
+import { getRoleRepository } from "../../../lib/role-repository";
 import { authErrorResponse, requireAdminPermission } from "../../../lib/access";
 import { getRequestId, isSameOriginMutation, withRequestId } from "../../../lib/request-context";
 import { validationError } from "../../../lib/api-response";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const requestId = getRequestId(request);
   try { await requireAdminPermission("roles.manage"); } catch (error: unknown) { return withRequestId(authErrorResponse(error), requestId); }
-  const items = await roleRepository.list();
+  const items = await getRoleRepository().list();
   return withRequestId(NextResponse.json({ items, permissions: allPermissions }, { headers: { "cache-control": "no-store" } }), requestId);
 }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const input = createRoleSchema.safeParse(body);
   if (!input.success) return withRequestId(validationError("Invalid role.", input.error.flatten()), requestId);
   try {
-    const role = await roleRepository.create(input.data);
+    const role = await getRoleRepository().create(input.data);
     return withRequestId(NextResponse.json(role, { status: 201, headers: { "cache-control": "no-store" } }), requestId);
   } catch { return withRequestId(validationError("Role permissions are invalid."), requestId); }
 }
