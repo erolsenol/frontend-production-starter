@@ -29,7 +29,7 @@ describe("InMemoryUserRepository", () => {
     });
 
     await expect(repository.remove("1")).resolves.toBe(true);
-    await expect(repository.list()).resolves.toMatchObject({ pageInfo: { total: 2 }, items: [{ id: "usr_03" }, { id: "2" }] });
+    await expect(repository.list()).resolves.toMatchObject({ pageInfo: { total: 2 }, items: [{ id: "usr_01" }, { id: "2" }] });
     await expect(repository.remove("missing")).resolves.toBe(false);
   });
 
@@ -42,5 +42,16 @@ describe("InMemoryUserRepository", () => {
     const repository = new InMemoryUserRepository(users);
     await expect(repository.update("1", { status: "suspended" })).resolves.toMatchObject({ id: "1", status: "suspended" });
     await expect(repository.update("missing", { status: "active" })).resolves.toBeNull();
+  });
+
+  it("keeps generated ids unique after deleting a middle record", async () => {
+    const repository = new InMemoryUserRepository([
+      { id: "usr_01", name: "One User", email: "one@example.com", role: "Viewer", status: "active", lastActive: "now" },
+      { id: "usr_02", name: "Two User", email: "two@example.com", role: "Viewer", status: "active", lastActive: "now" },
+      { id: "usr_03", name: "Three User", email: "three@example.com", role: "Viewer", status: "active", lastActive: "now" },
+    ]);
+
+    await repository.remove("usr_02");
+    await expect(repository.create({ name: "Four User", email: "four@example.com", role: "Viewer" })).resolves.toMatchObject({ id: "usr_04" });
   });
 });

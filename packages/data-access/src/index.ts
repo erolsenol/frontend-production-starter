@@ -25,9 +25,14 @@ export interface UserRepository {
 
 export class InMemoryUserRepository implements UserRepository {
   private readonly users: UserSummary[];
+  private nextId: number;
 
   constructor(users: readonly UserSummary[]) {
     this.users = [...users];
+    this.nextId = users.reduce((highest, user) => {
+      const match = /^usr_(\d+)$/.exec(user.id);
+      return match ? Math.max(highest, Number(match[1])) : highest;
+    }, 0) + 1;
   }
 
   async list(input: UserListInput = {}): Promise<Paginated<UserSummary>> {
@@ -56,7 +61,7 @@ export class InMemoryUserRepository implements UserRepository {
   async create(input: CreateUserInput): Promise<UserSummary> {
     const user = inviteUserSchema.parse(input);
     const nextUser: UserSummary = {
-      id: `usr_${String(this.users.length + 1).padStart(2, "0")}`,
+      id: `usr_${String(this.nextId++).padStart(2, "0")}`,
       name: user.name,
       email: user.email,
       role: user.role,
