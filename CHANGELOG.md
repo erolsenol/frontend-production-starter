@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- Added the Users invite and delete workflow with search, status filters, pagination, notifications, and E2E coverage.
+- Connected the admin app to shared form and notification contracts.
+- Published the `v0.5.0` public release.
+
 ## 0.4.1
 
 - Upgraded Turborepo to 2.11.2 and removed the pnpm lockfile workspace warning.

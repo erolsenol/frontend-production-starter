@@ -31,6 +31,7 @@ A public, production-minded admin starter for building typed, accessible, and ma
 ## Quick start
 
 ```bash
+fnm use || nvm use
 pnpm install
 cp .env.example .env.local
 pnpm dev
@@ -69,6 +70,7 @@ pnpm build
 pnpm check:full
 pnpm e2e
 pnpm audit
+pnpm verify
 ```
 
 Install the Playwright browser once before running E2E tests locally:
@@ -77,7 +79,7 @@ Install the Playwright browser once before running E2E tests locally:
 pnpm exec playwright install chromium
 ```
 
-The starter is intentionally mock-first. Replace the demo auth adapter and local data with your provider/API/database adapters before using it with real users or sensitive data. The admin example exposes `GET /api/health` as a simple readiness endpoint.
+The starter is intentionally mock-first. `apps/admin` is a reference application, not a production backend: replace the demo auth adapter and local data with your provider/API/database adapters before using it with real users or sensitive data. The admin example exposes `GET /api/health` as a simple readiness endpoint. Run `pnpm verify` before publishing a change.
 
 ## Architecture
 
