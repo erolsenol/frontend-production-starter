@@ -1,5 +1,20 @@
 export interface Session { readonly userId: string; readonly email: string; readonly name: string; readonly expiresAt: string; }
 export interface AuthAdapter { getSession(): Promise<Session | null>; signIn(input: { email: string; password: string }): Promise<Session>; signOut(): Promise<void>; }
+
+export class UnauthenticatedError extends Error {
+  readonly code = "UNAUTHENTICATED" as const;
+
+  constructor() {
+    super("Authentication is required.");
+    this.name = "UnauthenticatedError";
+  }
+}
+
+export const requireSession = async (adapter: AuthAdapter): Promise<Session> => {
+  const session = await adapter.getSession();
+  if (!session) throw new UnauthenticatedError();
+  return session;
+};
 export const isSessionValid = (session: Session, now = Date.now()): boolean => {
   const expiresAt = Date.parse(session.expiresAt);
   return Number.isFinite(expiresAt) && expiresAt > now;
