@@ -20,4 +20,20 @@ describe("InMemoryUserRepository", () => {
     const repository = new InMemoryUserRepository(users);
     await expect(repository.list({ page: 3, pageSize: 1 })).resolves.toMatchObject({ items: [], pageInfo: { total: 2, totalPages: 2 } });
   });
+
+  it("creates and removes users through the repository contract", async () => {
+    const repository = new InMemoryUserRepository(users);
+    await expect(repository.create({ name: "Alex Morgan", email: "alex@example.com", role: "Viewer" })).resolves.toMatchObject({
+      name: "Alex Morgan",
+      status: "invited",
+    });
+
+    await repository.remove("1");
+    await expect(repository.list()).resolves.toMatchObject({ pageInfo: { total: 2 }, items: [{ id: "usr_03" }, { id: "2" }] });
+  });
+
+  it("rejects invalid user input at the adapter boundary", async () => {
+    const repository = new InMemoryUserRepository(users);
+    await expect(repository.create({ name: "A", email: "invalid", role: "" })).rejects.toThrow();
+  });
 });

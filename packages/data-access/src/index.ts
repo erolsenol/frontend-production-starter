@@ -1,6 +1,12 @@
 import type { UserStatus, UserSummary } from "@repo/contracts";
 import type { Paginated } from "@repo/types";
-import { paginationSchema, userFilterSchema } from "@repo/validators";
+import { inviteUserSchema, paginationSchema, userFilterSchema } from "@repo/validators";
+
+export type CreateUserInput = {
+  readonly name: string;
+  readonly email: string;
+  readonly role: string;
+};
 
 export interface UserListInput {
   readonly query?: string;
@@ -11,13 +17,15 @@ export interface UserListInput {
 
 export interface UserRepository {
   list(input?: UserListInput): Promise<Paginated<UserSummary>>;
+  create(input: CreateUserInput): Promise<UserSummary>;
+  remove(id: string): Promise<void>;
 }
 
 export class InMemoryUserRepository implements UserRepository {
-  private readonly users: readonly UserSummary[];
+  private readonly users: UserSummary[];
 
   constructor(users: readonly UserSummary[]) {
-    this.users = users;
+    this.users = [...users];
   }
 
   async list(input: UserListInput = {}): Promise<Paginated<UserSummary>> {
@@ -41,5 +49,24 @@ export class InMemoryUserRepository implements UserRepository {
         totalPages: Math.max(1, Math.ceil(filtered.length / pagination.pageSize)),
       },
     };
+  }
+
+  async create(input: CreateUserInput): Promise<UserSummary> {
+    const user = inviteUserSchema.parse(input);
+    const nextUser: UserSummary = {
+      id: `usr_${String(this.users.length + 1).padStart(2, "0")}`,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: "invited",
+      lastActive: "Not yet",
+    };
+    this.users.unshift(nextUser);
+    return nextUser;
+  }
+
+  async remove(id: string): Promise<void> {
+    const index = this.users.findIndex((user) => user.id === id);
+    if (index >= 0) this.users.splice(index, 1);
   }
 }

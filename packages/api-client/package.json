@@ -1,1 +1,1 @@
-{"name":"@repo/api-client","version":"0.1.0","private":true,"main":"src/index.ts","types":"src/index.ts","dependencies":{"@repo/http":"workspace:*"}}
+{"name":"@repo/api-client","version":"0.1.0","private":true,"main":"src/index.ts","types":"src/index.ts","scripts":{"typecheck":"tsc --noEmit"},"dependencies":{"@repo/http":"workspace:*"},"devDependencies":{"typescript":"^5.7.2"}}

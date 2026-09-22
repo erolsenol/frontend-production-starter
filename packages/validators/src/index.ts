@@ -9,8 +9,8 @@ export const userFilterSchema = z.object({
 
 export const inviteUserSchema = z.object({
   name: z.string().trim().min(2).max(80),
-  email: z.string().email(),
-  role: z.string().min(1),
+  email: z.string().trim().email(),
+  role: z.string().trim().min(1).max(80),
 });
 
 export type UserFilter = z.infer<typeof userFilterSchema>;

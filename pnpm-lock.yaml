@@ -313,9 +313,16 @@ importers:
       '@repo/http':
         specifier: workspace:*
         version: link:../http
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/auth:
     devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
       vitest:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@22.20.4)(supports-color@7.2.0)
@@ -325,8 +332,16 @@ importers:
       '@repo/validators':
         specifier: workspace:*
         version: link:../validators
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/contracts: {}
+  packages/contracts:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/data-access:
     dependencies:
@@ -340,21 +355,36 @@ importers:
         specifier: workspace:*
         version: link:../validators
     devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
       vitest:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@22.20.4)(supports-color@7.2.0)
 
-  packages/design-tokens: {}
+  packages/design-tokens:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/eslint-config: {}
 
-  packages/feature-flags: {}
+  packages/feature-flags:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/forms:
     dependencies:
       '@repo/validation':
         specifier: workspace:*
         version: link:../validation
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/http:
     dependencies:
@@ -365,11 +395,18 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^2.1.9
         version: 2.1.9(supports-color@7.2.0)(vitest@2.1.9(@types/node@22.20.4)(supports-color@7.2.0))
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
       vitest:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@22.20.4)(supports-color@7.2.0)
 
-  packages/i18n: {}
+  packages/i18n:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/layout:
     dependencies:
@@ -383,18 +420,45 @@ importers:
       react:
         specifier: 19.3.0
         version: 19.3.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/logger: {}
+  packages/logger:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/notifications: {}
+  packages/notifications:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/permissions: {}
+  packages/permissions:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/tables: {}
+  packages/tables:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/testing: {}
+  packages/testing:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
-  packages/types: {}
+  packages/types:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/typescript-config: {}
 
@@ -425,12 +489,19 @@ importers:
       '@types/react':
         specifier: ^19.0.2
         version: 19.3.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/validation:
     dependencies:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
   packages/validators:
     dependencies:
@@ -440,6 +511,10 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
 
 packages:
 
