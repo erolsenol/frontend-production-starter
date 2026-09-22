@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createDemoAuthAdapter, requireSession, UnauthenticatedError, type AuthAdapter } from "@repo/auth";
 import { assertPermission, ForbiddenError, type AccessContext, type Permission } from "@repo/permissions";
+import { getAppConfig, InvalidProductionConfigError } from "@repo/config";
 
 const demoPermissions: readonly Permission[] = [
   "dashboard.read", "users.read", "users.create", "users.update", "users.delete", "roles.manage", "audit_logs.read", "settings.manage",
@@ -21,7 +22,14 @@ export const createAdminPermissionGuard = ({ auth, permissions }: AdminAccessDep
 const demoPermissionGuard = createAdminPermissionGuard({ auth: createDemoAuthAdapter(), permissions: demoPermissions });
 
 export const requireAdminPermission = async (permission: Permission): Promise<AccessContext> => {
-  if (process.env.NODE_ENV === "production" || process.env.DEMO_MODE === "false") throw new UnauthenticatedError();
+  let config;
+  try {
+    config = getAppConfig(process.env);
+  } catch (error: unknown) {
+    if (error instanceof InvalidProductionConfigError) throw new UnauthenticatedError();
+    throw error;
+  }
+  if (!config.demoMode || config.environment === "production") throw new UnauthenticatedError();
   return demoPermissionGuard(permission);
 };
 

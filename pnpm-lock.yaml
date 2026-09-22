@@ -193,6 +193,9 @@ importers:
       '@repo/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@repo/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -341,13 +344,16 @@ importers:
 
   packages/config:
     dependencies:
-      '@repo/validators':
-        specifier: workspace:*
-        version: link:../validators
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@22.20.4)(supports-color@7.2.0)
 
   packages/contracts:
     devDependencies:
@@ -2791,7 +2797,7 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.9(vite@5.4.21(@types/node@22.20.4))':
+  '@vitest/mocker@2.1.9(vite@5.4.21)':
     dependencies:
       '@vitest/spy': 2.1.9
       estree-walker: 3.0.3
@@ -3560,7 +3566,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.20.4)(supports-color@7.2.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.21(@types/node@22.20.4))
+      '@vitest/mocker': 2.1.9(vite@5.4.21)
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
