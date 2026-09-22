@@ -74,6 +74,8 @@ pnpm coverage
 pnpm build
 pnpm check:full
 pnpm e2e
+pnpm e2e:production
+pnpm test:integration
 pnpm audit
 pnpm verify
 ```
@@ -93,6 +95,8 @@ The application uses a replaceable adapter boundary: the demo runs with local mo
 See the [documentation map](./docs/README.md), [architecture guide](./docs/architecture.md), and [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 For connecting a real authentication provider and database, see [docs/production-adapters.md](./docs/production-adapters.md).
+
+Deployment starting points are in [deploy/](./deploy/README.md). The optional PostgreSQL integration smoke uses `INTEGRATION_DATABASE_URL`; production browser checks use `PRODUCTION_E2E_URL` and never run against a guessed target.
 
 For a production setup, copy `.env.example`, configure PostgreSQL/Neon, Better Auth, Upstash, and optionally an email webhook/OTLP collector. Apply migrations with `pnpm db:migrate` only after verifying that `DATABASE_URL` targets the intended database.
 

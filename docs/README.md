@@ -13,6 +13,7 @@ Frontend Production Starter is intentionally two products in one repository: a s
 | Choose the right test command | [Testing](./testing.md) |
 | Let an AI agent implement or review a change | [AI docs](./ai/README.md) |
 | Understand why a major choice exists | [Architecture decisions](./decisions/README.md) |
+| Deploy the admin reference | [Deployment examples](../deploy/README.md) |
 
 ## Examples
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.16.0
+
+- Added opt-in PostgreSQL integration smoke tests with a dedicated `INTEGRATION_DATABASE_URL` target.
+- Added opt-in deployed production E2E profile for recovery pages and readiness checks.
+- Added axe accessibility coverage and stable visual smoke coverage for the admin/docs surfaces.
+- Fixed production Better Auth email verification/password-reset delivery wiring.
+- Added Vercel, Docker, and local PostgreSQL deployment examples.
+- Added package catalog and focused README/API guidance across reusable workspace packages.
+- Upgraded Vitest and removed known production dependency audit findings through lockfile overrides.
+- Added Node 22/24 quality CI matrix.
+
 ## 0.15.2
 
 - Stabilized the Users browser smoke test by using an exact heading locator and Playwright auto-waiting.

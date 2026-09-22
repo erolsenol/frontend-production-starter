@@ -53,4 +53,8 @@ After provider wiring, separately verify:
 5. readiness and public URL behavior;
 6. traces/metrics arriving at the configured OTLP collector, when enabled.
 
+For a deployed target, run `PRODUCTION_E2E_URL=https://admin.example.com pnpm e2e:production` with a dedicated non-production environment. Keep credentials and provider URLs in CI secrets, never in the repository.
+
+Deployment examples for Vercel and Docker live in [`deploy/`](../deploy/README.md). They are starting points; the target platform’s runtime, secret store, domain, and database must still be verified separately.
+
 Record those checks in the release notes or pull request. Do not describe local mocks as provider or deployment proof.

@@ -1,6 +1,7 @@
 import { toNextJsHandler } from "better-auth/next-js";
 import { createBetterAuth } from "@repo/auth/better-auth";
 import { createNeonDatabase } from "@repo/database";
+import { createEmailSenderFromEnv } from "@repo/email";
 import { enforceRateLimit } from "../../../../lib/rate-limit";
 import { getRequestId, withRequestId } from "../../../../lib/request-context";
 import { instrumentRequest } from "../../../../lib/telemetry";
@@ -12,7 +13,13 @@ const getHandlers = () => {
   const secret = process.env.BETTER_AUTH_SECRET;
   const baseURL = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL;
   if (!databaseUrl || !secret || !baseURL) throw new Error("DATABASE_URL, BETTER_AUTH_SECRET, and BETTER_AUTH_URL are required for Better Auth.");
-  return toNextJsHandler(createBetterAuth(createNeonDatabase(databaseUrl), { secret, baseURL, trustedOrigins: [baseURL] }));
+  return toNextJsHandler(createBetterAuth(createNeonDatabase(databaseUrl), {
+    secret,
+    baseURL,
+    trustedOrigins: [baseURL],
+    emailSender: createEmailSenderFromEnv(process.env) ?? undefined,
+    emailFrom: process.env.EMAIL_FROM,
+  }));
 };
 
 export async function GET(request: Request) { return instrumentRequest(request, () => getHandlers().GET(request)); }
