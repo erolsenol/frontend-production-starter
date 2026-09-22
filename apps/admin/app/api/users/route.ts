@@ -2,11 +2,9 @@ import { NextResponse } from "next/server";
 import { paginationSchema, inviteUserSchema, userFilterSchema } from "@repo/validators";
 import { userRepository } from "../../../lib/user-repository";
 import { authErrorResponse, requireAdminPermission } from "../../../lib/access";
+import { validationError } from "../../../lib/api-response";
 
 export const dynamic = "force-dynamic";
-
-const validationError = (message: string, details: unknown) =>
-  NextResponse.json({ error: { code: "VALIDATION_ERROR", message, details } }, { status: 422 });
 
 export async function GET(request: Request) {
   try { await requireAdminPermission("users.read"); } catch (error: unknown) { return authErrorResponse(error); }
@@ -31,7 +29,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return validationError("Request body must be valid JSON.", undefined);
+    return validationError("Request body must be valid JSON.");
   }
 
   const input = inviteUserSchema.safeParse(body);
