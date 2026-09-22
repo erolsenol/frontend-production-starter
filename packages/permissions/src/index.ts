@@ -14,6 +14,7 @@ export const allPermissions: readonly Permission[] = [
 
 export interface AccessContext {
   readonly permissions: readonly Permission[];
+  readonly userId?: string;
 }
 
 export const can = (context: AccessContext, permission: Permission): boolean =>

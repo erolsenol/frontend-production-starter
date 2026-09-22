@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.13.0
+
+- Added an optional Better Auth route boundary with request-aware sessions and Drizzle/PostgreSQL/Neon integration.
+- Added database-backed auth, profiles, roles, permissions, user-role links, and audit-log schema plus generated migrations.
+- Added Drizzle user, role, and audit repositories with reference RBAC seed support.
+- Added mutation audit events and production-aware Upstash sliding-window rate limiting.
+- Added an OpenTelemetry request instrumentation boundary and documented production environment variables and adapter handoff.
+
 ## 0.12.0
 
 - Completed provider-neutral production composition for auth, user repositories, and role repositories.

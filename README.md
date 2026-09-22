@@ -57,6 +57,9 @@ packages/forms          Form submission state contracts
 packages/tables         Data table contracts
 packages/permissions    RBAC permission model
 packages/design-tokens  Shared visual tokens
+packages/database       Drizzle PostgreSQL/Neon schema and repositories
+packages/rate-limit-upstash  Optional distributed rate-limit adapter
+packages/observability  OpenTelemetry trace/metric boundary
 ```
 
 ## Commands
@@ -80,7 +83,7 @@ Install the Playwright browser once before running E2E tests locally:
 pnpm exec playwright install chromium
 ```
 
-The starter is intentionally mock-first. `apps/admin` is a reference application, not a production backend: replace the demo auth adapter and local data with your provider/API/database adapters before using it with real users or sensitive data. Demo auth is enabled outside production; runtime configuration rejects demo auth and memory data sources in production. `GET /api/health` is liveness; `GET /api/health/ready` is the stricter deployment gate and remains `503` until real adapters are wired. Mutation routes add request correlation plus same-origin protection. Run `pnpm verify` before publishing a change.
+The starter is intentionally mock-first. `apps/admin` is a reference application, not a production backend: production can use Better Auth + Drizzle + PostgreSQL/Neon through the included optional adapters. Demo auth is enabled outside production; runtime configuration rejects demo auth and memory data sources in production. `GET /api/health` is liveness; `GET /api/health/ready` is the stricter deployment gate and remains `503` until real adapters are wired. Mutation routes add request correlation, same-origin protection, audit events, and optional distributed rate limiting. Run `pnpm verify` before publishing a change.
 
 ## Architecture
 

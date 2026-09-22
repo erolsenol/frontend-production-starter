@@ -21,6 +21,14 @@ Implement `UserRepository` and `RoleRepository` from `@repo/data-access` using t
 
 The in-memory repositories are only for local demo/test mode. They are not durable, multi-instance safe, or suitable for PII.
 
+## Audit and rate limiting
+
+The database schema includes `audit_log`; user and role mutations emit events with actor, resource, request ID, and redacted request context. `@repo/rate-limit-upstash` is used for production mutations when `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are present. Missing rate-limit configuration fails closed in production with `503`; local demo/test bypasses it.
+
+## Observability
+
+`@repo/logger` remains the structured, redacting log boundary. `@repo/observability` exposes OpenTelemetry tracer/counter/histogram instruments without choosing an exporter. Register an OpenTelemetry SDK/exporter in the deployment runtime and keep secrets and PII out of attributes.
+
 ## Deployment gate
 
 - `GET /api/health` is liveness.

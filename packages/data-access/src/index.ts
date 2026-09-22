@@ -123,3 +123,14 @@ export class InMemoryRoleRepository implements RoleRepository {
   }
   async remove(id: string): Promise<boolean> { const index = this.roles.findIndex((role) => role.id === id); if (index < 0 || this.roles[index].system) return false; this.roles.splice(index, 1); return true; }
 }
+
+export interface AuditLogRecord { readonly id: string; readonly actorId: string | null; readonly action: string; readonly resourceType: string; readonly resourceId?: string; readonly metadata?: Readonly<Record<string, string>>; readonly ipAddress?: string; readonly userAgent?: string; readonly requestId?: string; readonly createdAt: string; }
+export interface AuditLogInput { readonly actorId: string | null; readonly action: string; readonly resourceType: string; readonly resourceId?: string; readonly metadata?: Readonly<Record<string, string>>; readonly ipAddress?: string; readonly userAgent?: string; readonly requestId?: string; }
+export interface AuditLogRepository { list(input?: { readonly page?: number; readonly pageSize?: number }): Promise<Paginated<AuditLogRecord>>; append(input: AuditLogInput): Promise<AuditLogRecord>; }
+
+export class InMemoryAuditLogRepository implements AuditLogRepository {
+  private readonly entries: AuditLogRecord[];
+  constructor(entries: readonly AuditLogRecord[] = []) { this.entries = [...entries]; }
+  async list(input: { readonly page?: number; readonly pageSize?: number } = {}): Promise<Paginated<AuditLogRecord>> { const pagination = paginationSchema.parse(input); const start = (pagination.page - 1) * pagination.pageSize; return { items: this.entries.slice(start, start + pagination.pageSize), pageInfo: { page: pagination.page, pageSize: pagination.pageSize, total: this.entries.length, totalPages: Math.max(1, Math.ceil(this.entries.length / pagination.pageSize)) } }; }
+  async append(input: AuditLogInput): Promise<AuditLogRecord> { const entry: AuditLogRecord = { ...input, id: `audit_${String(this.entries.length + 1).padStart(4, "0")}`, createdAt: new Date().toISOString() }; this.entries.unshift(entry); return entry; }
+}

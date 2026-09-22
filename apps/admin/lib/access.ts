@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createDemoAuthAdapter, requireSession, UnauthenticatedError, type AuthAdapter } from "@repo/auth";
+import { createDemoAuthAdapter, requireSession, UnauthenticatedError, type AuthAdapter, type AuthContext } from "@repo/auth";
 import { assertPermission, ForbiddenError, type AccessContext, type Permission } from "@repo/permissions";
 import { getAppConfig, InvalidProductionConfigError } from "@repo/config";
 
@@ -12,21 +12,21 @@ export interface AdminAccessDependencies {
   readonly permissions: readonly Permission[];
 }
 
-export const createAdminPermissionGuard = ({ auth, permissions }: AdminAccessDependencies) => async (permission: Permission): Promise<AccessContext> => {
-  await requireSession(auth);
-  const context: AccessContext = { permissions };
-  assertPermission(context, permission);
-  return context;
+export const createAdminPermissionGuard = ({ auth, permissions }: AdminAccessDependencies) => async (permission: Permission, context?: AuthContext): Promise<AccessContext> => {
+  const session = await requireSession(auth, context);
+  const accessContext: AccessContext = { permissions, userId: session.userId };
+  assertPermission(accessContext, permission);
+  return accessContext;
 };
 
 const demoPermissionGuard = createAdminPermissionGuard({ auth: createDemoAuthAdapter(), permissions: demoPermissions });
-let configuredPermissionGuard: ((permission: Permission) => Promise<AccessContext>) | null = null;
+let configuredPermissionGuard: ((permission: Permission, context?: AuthContext) => Promise<AccessContext>) | null = null;
 
 export const configureAdminAccess = (dependencies: AdminAccessDependencies | null): void => {
   configuredPermissionGuard = dependencies ? createAdminPermissionGuard(dependencies) : null;
 };
 
-export const requireAdminPermission = async (permission: Permission): Promise<AccessContext> => {
+export const requireAdminPermission = async (permission: Permission, context?: AuthContext): Promise<AccessContext> => {
   let config;
   try {
     config = getAppConfig(process.env);
@@ -34,9 +34,13 @@ export const requireAdminPermission = async (permission: Permission): Promise<Ac
     if (error instanceof InvalidProductionConfigError) throw new UnauthenticatedError();
     throw error;
   }
-  if (config.demoMode && config.environment !== "production") return demoPermissionGuard(permission);
+  if (config.demoMode && config.environment !== "production") return demoPermissionGuard(permission, context);
+  if (!configuredPermissionGuard) {
+    const composition = await import("./production-composition");
+    composition.ensureProductionComposition();
+  }
   if (!configuredPermissionGuard) throw new UnauthenticatedError();
-  return configuredPermissionGuard(permission);
+  return configuredPermissionGuard(permission, context);
 };
 
 export const authErrorResponse = (error: unknown): NextResponse => {
