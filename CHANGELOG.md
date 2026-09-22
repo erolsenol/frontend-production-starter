@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0
+
+- Refactored the Users screen around a focused `UserTable` feature component and the shared accessible Dialog primitive.
+- Strengthened Dialog focus management with stable ids, focus restoration, Escape dismissal, and Tab containment.
+- Extended the shared HTTP client with PATCH/DELETE methods and nested API error parsing.
+- Centralized admin API validation, not-found, invalid-id, and no-content responses.
+
 ## 0.8.0
 
 - Completed validated Users update and status CRUD across repository, API, typed client, UI, and E2E layers.
