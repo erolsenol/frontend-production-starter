@@ -1,6 +1,9 @@
 import { toNextJsHandler } from "better-auth/next-js";
 import { createBetterAuth } from "@repo/auth/better-auth";
 import { createNeonDatabase } from "@repo/database";
+import { enforceRateLimit } from "../../../../lib/rate-limit";
+import { getRequestId, withRequestId } from "../../../../lib/request-context";
+import { instrumentRequest } from "../../../../lib/telemetry";
 
 export const dynamic = "force-dynamic";
 
@@ -12,5 +15,12 @@ const getHandlers = () => {
   return toNextJsHandler(createBetterAuth(createNeonDatabase(databaseUrl), { secret, baseURL, trustedOrigins: [baseURL] }));
 };
 
-export async function GET(request: Request) { return getHandlers().GET(request); }
-export async function POST(request: Request) { return getHandlers().POST(request); }
+export async function GET(request: Request) { return instrumentRequest(request, () => getHandlers().GET(request)); }
+export async function POST(request: Request) {
+  const requestId = getRequestId(request);
+  return instrumentRequest(request, async () => {
+    const rateLimitResponse = await enforceRateLimit(request, "auth");
+    if (rateLimitResponse) return withRequestId(rateLimitResponse, requestId);
+    return withRequestId(await getHandlers().POST(request), requestId);
+  });
+}

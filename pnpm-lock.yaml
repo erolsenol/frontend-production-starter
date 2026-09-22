@@ -217,6 +217,9 @@ importers:
       '@repo/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
+      '@repo/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
       '@repo/permissions':
         specifier: workspace:*
         version: link:../../packages/permissions

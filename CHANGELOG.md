@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.0
+
+- Connected production authorization to database-backed user roles and permissions instead of granting a static permission set.
+- Added SQL-side user and audit pagination, transactional user/role writes, and defensive audit metadata parsing.
+- Added production PostgreSQL readiness probing and auth endpoint rate limiting.
+- Added Better Auth login/logout UI and an OpenTelemetry request instrumentation boundary.
+- Updated architecture and production adapter documentation to match the shipped composition.
+
 ## 0.13.0
 
 - Added an optional Better Auth route boundary with request-aware sessions and Drizzle/PostgreSQL/Neon integration.

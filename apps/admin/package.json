@@ -14,6 +14,7 @@
     "@repo/http":"workspace:*",
     "@repo/notifications":"workspace:*",
     "@repo/permissions":"workspace:*",
+    "@repo/observability":"workspace:*",
     "@repo/rate-limit-upstash":"workspace:*",
     "@repo/types":"workspace:*",
     "@repo/ui":"workspace:*",

@@ -83,7 +83,7 @@ Install the Playwright browser once before running E2E tests locally:
 pnpm exec playwright install chromium
 ```
 
-The starter is intentionally mock-first. `apps/admin` is a reference application, not a production backend: production can use Better Auth + Drizzle + PostgreSQL/Neon through the included optional adapters. Demo auth is enabled outside production; runtime configuration rejects demo auth and memory data sources in production. `GET /api/health` is liveness; `GET /api/health/ready` is the stricter deployment gate and remains `503` until real adapters are wired. Mutation routes add request correlation, same-origin protection, audit events, and optional distributed rate limiting. Run `pnpm verify` before publishing a change.
+The starter is intentionally demo-first. `apps/admin` is a reference application with an included production composition: Better Auth + Drizzle + PostgreSQL/Neon, database-backed RBAC, audit logs, auth/mutation rate limiting, and an OpenTelemetry boundary. Demo auth is enabled outside production; runtime configuration rejects demo auth and memory data sources in production. `GET /api/health` is liveness; `GET /api/health/ready` validates production configuration and performs a lightweight database connectivity probe. Mutation routes add request correlation, same-origin protection, audit events, and distributed rate limiting. Run `pnpm verify` before publishing a change.
 
 ## Architecture
 

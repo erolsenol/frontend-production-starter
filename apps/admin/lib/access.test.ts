@@ -34,4 +34,14 @@ describe("admin access boundary", () => {
     if (previous === undefined) delete process.env.DEMO_MODE;
     else process.env.DEMO_MODE = previous;
   });
+
+  it("resolves permissions per authenticated user", async () => {
+    const guard = createAdminPermissionGuard({
+      auth: createStaticAuthAdapter({ userId: "user_3", email: "role@example.com", name: "Role User", expiresAt: "2027-01-01T00:00:00.000Z" }),
+      permissions: async (userId) => userId === "user_3" ? ["users.read"] : [],
+    });
+
+    await expect(guard("users.read")).resolves.toMatchObject({ permissions: ["users.read"], userId: "user_3" });
+    await expect(guard("roles.manage")).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
 });

@@ -9,12 +9,13 @@ const demoPermissions: readonly Permission[] = [
 
 export interface AdminAccessDependencies {
   readonly auth: AuthAdapter;
-  readonly permissions: readonly Permission[];
+  readonly permissions: readonly Permission[] | ((userId: string) => Promise<readonly Permission[]>);
 }
 
 export const createAdminPermissionGuard = ({ auth, permissions }: AdminAccessDependencies) => async (permission: Permission, context?: AuthContext): Promise<AccessContext> => {
   const session = await requireSession(auth, context);
-  const accessContext: AccessContext = { permissions, userId: session.userId };
+  const resolvedPermissions = typeof permissions === "function" ? await permissions(session.userId) : permissions;
+  const accessContext: AccessContext = { permissions: resolvedPermissions, userId: session.userId };
   assertPermission(accessContext, permission);
   return accessContext;
 };

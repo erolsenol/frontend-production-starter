@@ -1,8 +1,7 @@
 import { createNeonDatabase } from "@repo/database";
 import { createBetterAuth } from "@repo/auth/better-auth";
 import { createBetterAuthAdapter } from "@repo/auth";
-import { allPermissions } from "@repo/permissions";
-import { createDrizzleAuditRepository, createDrizzleRoleRepository, createDrizzleUserRepository } from "@repo/database/repositories";
+import { createDrizzleAuditRepository, createDrizzlePermissionResolver, createDrizzleRoleRepository, createDrizzleUserRepository } from "@repo/database/repositories";
 import { configureAdminAccess } from "./access";
 import { configureRoleRepository } from "./role-repository";
 import { configureUserRepository } from "./user-repository";
@@ -18,7 +17,7 @@ export const ensureProductionComposition = (): boolean => {
   if (!databaseUrl || !secret || !baseURL) return false;
   const database = createNeonDatabase(databaseUrl);
   const auth = createBetterAuth(database, { secret, baseURL, trustedOrigins: [baseURL] });
-  configureAdminAccess({ auth: createBetterAuthAdapter(auth), permissions: allPermissions });
+  configureAdminAccess({ auth: createBetterAuthAdapter(auth), permissions: createDrizzlePermissionResolver(database) });
   configureUserRepository(createDrizzleUserRepository(database));
   configureRoleRepository(createDrizzleRoleRepository(database));
   configureAuditRepository(createDrizzleAuditRepository(database));
