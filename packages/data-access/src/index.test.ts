@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { UserSummary } from "@repo/contracts";
 import { InMemoryUserRepository } from "./index";
+import { InMemoryRoleRepository } from "./index";
 
 const users: readonly UserSummary[] = [
   { id: "1", name: "Sarah Lee", email: "sarah@example.com", role: "Admin", status: "active", lastActive: "now" },
@@ -53,5 +54,19 @@ describe("InMemoryUserRepository", () => {
 
     await repository.remove("usr_02");
     await expect(repository.create({ name: "Four User", email: "four@example.com", role: "Viewer" })).resolves.toMatchObject({ id: "usr_04" });
+  });
+});
+
+describe("InMemoryRoleRepository", () => {
+  it("creates roles with validated canonical permissions", async () => {
+    const repository = new InMemoryRoleRepository([{ id: "role_01", name: "Viewer", description: "Read only", permissions: ["users.read"], members: 0, system: true }]);
+    await expect(repository.create({ name: "Support", description: "Support access", permissions: ["users.read", "users.update"] })).resolves.toMatchObject({ id: "role_02", system: false, permissions: ["users.read", "users.update"] });
+    await expect(repository.create({ name: "Broken", description: "Invalid", permissions: ["unknown.permission"] })).rejects.toThrow("Unknown permission");
+  });
+
+  it("does not mutate or delete system roles", async () => {
+    const repository = new InMemoryRoleRepository([{ id: "role_01", name: "Viewer", description: "Read only", permissions: ["users.read"], members: 0, system: true }]);
+    await expect(repository.update("role_01", { name: "Changed" })).resolves.toBeNull();
+    await expect(repository.remove("role_01")).resolves.toBe(false);
   });
 });

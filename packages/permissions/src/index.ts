@@ -8,6 +8,10 @@ export type Permission =
   | "audit_logs.read"
   | "settings.manage";
 
+export const allPermissions: readonly Permission[] = [
+  "dashboard.read", "users.read", "users.create", "users.update", "users.delete", "roles.manage", "audit_logs.read", "settings.manage",
+];
+
 export interface AccessContext {
   readonly permissions: readonly Permission[];
 }
