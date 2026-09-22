@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.0
+
+- Added typed runtime configuration that rejects demo auth and in-memory data sources in production.
+- Added structured logging with redaction for common secret fields and request correlation IDs.
+- Added same-origin protection for admin mutations.
+- Added a complete Roles & Permissions reference slice with canonical permission catalog, repository, protected API, validation, and create-role UI.
+- Added regression coverage for production configuration, request context, role repository, and role APIs.
+
 ## 0.10.0
 
 - Added a provider-ready admin permission guard factory for real authentication integrations.
