@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.16.1
+
+- Update Next.js to the patched 16.3 line and constrain source-map-js to its patched release.
+
+- Dispose HTTP request timeout timers and caller abort listeners after response bodies finish, including error paths.
+- Preserve Headers and tuple-based request headers for JSON mutations, including explicit content types.
+
 ## 0.16.0
 
 - Added opt-in PostgreSQL integration smoke tests with a dedicated `INTEGRATION_DATABASE_URL` target.

@@ -13,3 +13,7 @@ output/playwright
 *.tsbuildinfo
 apps/*/AGENTS.md
 apps/*/CLAUDE.md
+
+examples/*/AGENTS.md
+examples/*/CLAUDE.md
+test-results/
