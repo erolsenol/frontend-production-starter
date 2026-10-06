@@ -32,47 +32,44 @@ const parseResponse = async <T>(response: Response): Promise<T> => {
 const joinUrl = (baseUrl: string, path: string): string =>
   `${baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 
-const withTimeout = (init: RequestInit | undefined, timeoutMs: number): RequestInit => {
+const withTimeout = (init: RequestInit | undefined, timeoutMs: number) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const callerSignal = init?.signal;
   const abortFromCaller = () => controller.abort(callerSignal?.reason);
   if (callerSignal?.aborted) abortFromCaller();
   else callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
-  controller.signal.addEventListener("abort", () => {
+  const dispose = () => {
     clearTimeout(timeout);
     callerSignal?.removeEventListener("abort", abortFromCaller);
-  }, { once: true });
-  return { ...init, signal: controller.signal };
+  };
+  return { init: { ...init, signal: controller.signal }, dispose };
+};
+
+const jsonHeaders = (input: HeadersInit | undefined): Headers => {
+  const headers = new Headers(input);
+  if (!headers.has("content-type")) headers.set("content-type", "application/json");
+  return headers;
 };
 
 export const createHttpClient = (baseUrl: string, options: HttpClientOptions = {}): HttpClient => {
   const request = options.fetch ?? globalThis.fetch;
   const timeoutMs = options.timeoutMs ?? 10_000;
 
+  const send = async <T>(path: string, init?: RequestInit): Promise<T> => {
+    const scoped = withTimeout(init, timeoutMs);
+    try { return await parseResponse<T>(await request(joinUrl(baseUrl, path), scoped.init)); }
+    finally { scoped.dispose(); }
+  };
+
   return {
-    get: async <T>(path: string, init?: RequestInit) =>
-      parseResponse<T>(await request(joinUrl(baseUrl, path), withTimeout(init, timeoutMs))),
-    post: async <T, B>(path: string, body: B, init?: RequestInit) =>
-      parseResponse<T>(
-        await request(
-          joinUrl(baseUrl, path),
-          withTimeout({
-            ...init,
-            method: "POST",
-            headers: { "content-type": "application/json", ...init?.headers },
-            body: JSON.stringify(body),
-          }, timeoutMs),
-        ),
-      ),
-    patch: async <T, B>(path: string, body: B, init?: RequestInit) =>
-      parseResponse<T>(
-        await request(
-          joinUrl(baseUrl, path),
-          withTimeout({ ...init, method: "PATCH", headers: { "content-type": "application/json", ...init?.headers }, body: JSON.stringify(body) }, timeoutMs),
-        ),
-      ),
-    delete: async <T = void>(path: string, init?: RequestInit) =>
-      parseResponse<T>(await request(joinUrl(baseUrl, path), withTimeout({ ...init, method: "DELETE" }, timeoutMs))),
+    get: <T>(path: string, init?: RequestInit) => send<T>(path, init),
+    post: <T, B>(path: string, body: B, init?: RequestInit) => send<T>(path, {
+      ...init, method: "POST", headers: jsonHeaders(init?.headers), body: JSON.stringify(body),
+    }),
+    patch: <T, B>(path: string, body: B, init?: RequestInit) => send<T>(path, {
+      ...init, method: "PATCH", headers: jsonHeaders(init?.headers), body: JSON.stringify(body),
+    }),
+    delete: <T = void>(path: string, init?: RequestInit) => send<T>(path, { ...init, method: "DELETE" }),
   };
 };
